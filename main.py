@@ -3,6 +3,7 @@ import functions
 import globals
 import classes
 import os
+from enum import Enum
 from ast import literal_eval
 dirPath = "sprites"
 clock = pygame.time.Clock()
@@ -39,19 +40,23 @@ for x in range(1,50):
         ourUniverse.board[x,y] = shape
 
             #collisions[target["type"]]()
+class control(Enum):
+    MOVE = 1
+    INPUT = 2
+currentControl = control.MOVE
 def keyHandler(key):
     def w():
-        functions.move_object(ourUniverse.objects[0],[0,-1])
-        _update()
+        global direction
+        direction = (0,-1)
     def s():
-        functions.move_object(ourUniverse.objects[0],[0,1])
-        _update()
+        global direction
+        direction = (0,1)
     def a():
-        functions.move_object(ourUniverse.objects[0],[-1,0])
-        _update()
+        global direction
+        direction = (-1,0)
     def d():
-        functions.move_object(ourUniverse.objects[0],[1,0])
-        _update()
+        global direction
+        direction = (1,0)
     def escape():
         quit()
     def q():
@@ -67,6 +72,17 @@ def keyHandler(key):
     keys = {119:w,115:s,97:a,100:d,113:q,101:e,27:escape,122:escape,99:c}
     if key in keys:
         keys[key]()
+    def INPUT():
+        pass
+    def MOVE():
+        global direction
+        functions.move_object(ourUniverse.objects[0], direction)
+        direction = (0,0)
+    mode = {1:MOVE,2:INPUT}
+    if currentControl.value in mode:
+        mode[currentControl.value]()
+
+    _update()
 def _render_screen():
     screen.fill((0, 0, 0))
 
