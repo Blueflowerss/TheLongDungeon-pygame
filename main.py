@@ -23,6 +23,7 @@ images.append(pygame.image.load(r"/home/ajaag/Pictures/kumoniko.png"))
 boardDistancing = 35
 cameraOffsetX = 0
 cameraOffsetY = 0
+currentBoard = 0
 scale = 0
 activeBoard = {}
 globals.initialize()
@@ -46,6 +47,8 @@ for x in range(1,boxSize):
             shape = classes.Tile(x, y, "empty")
         ourUniverse.board[x,y] = shape
             #collisions[target["type"]]()
+#for number in range(2,5):
+#    ourUniverse.gameBoards[(number,number)] = classes.Worldtile(number,number,16)
 class control(Enum):
     MOVE = 1
     DIG = 2

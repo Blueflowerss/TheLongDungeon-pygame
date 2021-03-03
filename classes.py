@@ -1,6 +1,7 @@
 import pygame
 import globals
 import math
+import numpy as np
 from operator import sub
 import functions
 clock = pygame.time.Clock()
@@ -21,7 +22,15 @@ class Tile:
         matchCase = {"empty":empty,"wall":wall}
         if id in matchCase:
             matchCase[id]()
-
+class Worldtile:
+    def __init__(self,x,y,chunkSize):
+        self.x = x
+        self.y = y
+        self.tiles = {}
+        for x in range(0,chunkSize):
+            for y in range(0,chunkSize):
+                tile = Tile(x*self.x,y*self.y,"empty")
+                self.tiles[(x,y)] = tile
 class Universe:
     def __init__(self,index):
         self.index = index
@@ -29,6 +38,7 @@ class Universe:
         self.items = []
         self.board = {}
         self.objectMap = {}
+        self.gameBoards = {}
 class Actor():
     def __init__(self,x,y):
         self.type = "enemy"
@@ -37,6 +47,33 @@ class Actor():
 
     def _process(self):
         pass
+    def move_object(object,amount):
+        globals.initialize()
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        if (tuple(map(sum, zip(object.pos, amount)))) in ourUniverse.board:
+            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
+            def actor():
+                pass
+            def wall():
+                pass
+            def empty():
+                object.pos=curBoard.pos
+            def enemy():
+                pass
+            collisions = {"actor":actor,"wall":wall,"empty":empty,"enemy":enemy}
+            if (curBoard.pos) in ourUniverse.objectMap:
+                target = ourUniverse.objectMap[curBoard.pos]
+                if target.type is not None:
+                    if target.type in collisions:
+                        collisions[target.type]()
+                    else:
+                        pass
+            elif (curBoard.pos) in ourUniverse.board:
+                target = ourUniverse.board[curBoard.pos]
+                if target.type in collisions:
+                    collisions[target.type]()
+           # else:
+            #w    collisions["empty"]()
 class Enemy:
     def __init__(self,x,y):
         self.type = "enemy"
@@ -49,19 +86,21 @@ class Enemy:
             target = ourUniverse.objects[0]
             direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
             direction = (math.floor(direction.x),math.floor(direction.y))
-            self.move_object()
-    def move_object(amount):
+            self.move_object(direction)
+    def move_object(object,amount):
         globals.initialize()
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        if (tuple(map(sum, zip(self.pos, amount)))) in ourUniverse.board:
-            curBoard = ourUniverse.board[tuple(map(sum, zip(pos, amount)))]
+        if (tuple(map(sum, zip(object.pos, amount)))) in ourUniverse.board:
+            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
             def actor():
                 pass
             def wall():
                 pass
             def empty():
-                self.pos=curBoard.pos
-            collisions = {"actor":actor,"wall":wall,"empty":empty}
+                object.pos=curBoard.pos
+            def enemy():
+                pass
+            collisions = {"actor":actor,"wall":wall,"empty":empty,"enemy":enemy}
             if (curBoard.pos) in ourUniverse.objectMap:
                 target = ourUniverse.objectMap[curBoard.pos]
                 if target.type is not None:
@@ -73,5 +112,5 @@ class Enemy:
                 target = ourUniverse.board[curBoard.pos]
                 if target.type in collisions:
                     collisions[target.type]()
-            else:
+            #else:
                 collisions["empty"]()
