@@ -4,9 +4,13 @@ Rewrite of The Long Dungeon to Pygame.
 Some directives:
 
 -The game should be casual to play. You play whenever you just want to explore or take mind of things. Just like minecraft/starbound/stardew valley
+
 -Farming elements: animal raising, planting.
+
 -Light on survival elements: resource collection (wood chopping, stone digging), non-intrusive hunger system (like caves of qud?) and death shouldn't be a big concern.
+
 -dungeons? possibly having puzzles regarding stepping, z-levels and various other mechanics I implement.  
+
 -Cool shit: z-levels (mountain peaks, cliffs, ravines, caves, high places).
 
 -Most important of all, stepping: Various planets to explore (crystalline worlds, dark worlds, cloud worlds, black hole worlds).
