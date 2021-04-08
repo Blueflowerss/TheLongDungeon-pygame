@@ -3,7 +3,7 @@ Rewrite of The Long Dungeon to Pygame.
 
 Some directives:
 
--The game should be casual to play. You play whenever you just want to explore or take mind of things. Just like minecraft/starbound/stardew valley
+-The game should be casual to play. You play whenever you just want to explore or things easy. Just like minecraft/starbound/stardew valley
 
 -Farming elements: animal raising, planting.
 
