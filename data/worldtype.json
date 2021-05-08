@@ -1,0 +1,3 @@
+{"grassy":{"ground":"stoneWall","grass":"grass","mountains":false,"buildings":false},
+"autumn":{"ground":"redStoneWall","grass":"redgrass","mountains":true,"buildings":false},
+"collapse":{"ground":"redStoneWall","grass":"redgrass","mountains":true,"buildings":true}}

@@ -1,0 +1,16 @@
+skrypt sh w main/gamelaunch.sh
+
+Kontrole:
+	Numpad/WASD - poruszanie sie
+	Q/E - zmiana bloku
+	C - budowanie
+	V - kopanie 
+	J/K - "step"-owanie
+	,/. - (debug) zoom
+	Z - (debug) step teleport
+	X - (debug) teleport
+
+Nowosci w 0.3
+-Perlin Noise uzyty do generacji terenu.
+-zapisywana pozycja gracza miedzy sesjami grania.
+-nie pamietam, wiekszosc w kodzie jest zmieniona.
