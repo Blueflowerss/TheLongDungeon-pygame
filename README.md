@@ -1,6 +1,10 @@
 # TheLongDungeon-pygame
 Rewrite of The Long Dungeon to Pygame.
 
+
+      Roguelike dungeon crawler where instead of up/down, you step sideways into parallel worlds.
+    
+
 Some directives:
 
 -The game should be casual to play. You play whenever you just want to explore or take things easy. Just like minecraft/starbound/stardew valley
