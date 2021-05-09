@@ -36,7 +36,7 @@ for number in imagekeys:
         images[number] = tempImages["images_alpha"][number].convert_alpha()
     elif number in tempImages["images_nostretch"]:
         images[number] = tempImages["images_nostretch"][number].convert_alpha()
-
+#
 #board related stuff
 boardDistancing = 32
 cameraOffsetX = 0

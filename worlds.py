@@ -2,7 +2,7 @@ import globals
 import random
 worldData = {}
 worldTerrain = {
-    "plains":0.09,"mountains":0.04
+    "plains":0.08,"mountains":0.04
 }
 worldChances = {}
 def initialize():

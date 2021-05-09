@@ -2,6 +2,7 @@ import math
 import noise
 import globals
 import random
+#
 def first_n_digits(num, n):
     return num // 10 ** (int(math.log(num, 10)) - n + 1)
 def generateNoise(value,x,y,min,max,seed,raw=False,octaves=3):
