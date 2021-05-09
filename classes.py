@@ -36,7 +36,7 @@ class Worldtile:
                         terrain = universe.loadedTerrain[xPos,yPos]
                         self.tiles[terrain[0],terrain[1]] = Tile(terrain[0],terrain[1],terrain[2],universe)
                     else:
-                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos), 3, 0.01, 1, globals.seed)
+                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
                         if perlinTile == 1 and universe.worldType["mountains"]:
                             tile = Tile(xPos,yPos,globals.tileHash[universe.worldType["ground"]],universe)
                             self.tiles[(xPos,yPos)] = tile
@@ -63,7 +63,7 @@ class TextInput:
             newText = newText.replace("\r","")
             if newText:
                 dest = int(newText)
-                functions.attemptTravel(actor,globals.currentUniverse,dest)
+                functions.attemptTravel(actor,globals.currentUniverse,dest,True)
         modes = {"teleport":teleport,"teleportstep":teleportstep}
         if self.mode in modes:
             modes[self.mode]()
@@ -136,10 +136,14 @@ class Universe:
         self.loadedTerrain = {}
         self.alteredTerrain = {}
         self.altered = False
-        randNumber = int(abs(mathstuff.generateNoise(self.index, globals.seed, 1, 3, 0.01, 1, globals.seed,True))*100)
-        self.worldType = worlds.worldData[list(worlds.worldData)[randNumber % len(worlds.worldData)]]
-        print(randNumber)
-
+        randNumber = int(self.index/20)
+        tempNumber = -500000
+        random.seed(randNumber)
+        choices = []
+        if randNumber != tempNumber:
+            tempNumber = randNumber
+            choices = (random.choices(list(worlds.worldChances.keys()), list(worlds.worldChances.values()), k=20))
+        self.worldType = worlds.worldData[list(choices)[self.index%len(choices)]]
 class Actor():
     def __init__(self,x,y,id,universe):
         self.important = True

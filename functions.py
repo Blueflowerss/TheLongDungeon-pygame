@@ -14,11 +14,13 @@ def alter_tile(tile,id):
     elif chunkBlock not in ourUniverse.gameBoards:
         if chunkBlock[0] > 1 and chunkBlock[1]> 1 and chunkBlock[0] < (globals.worldSize/globals.chunkSize)-2 and chunkBlock[1] < (globals.worldSize/globals.chunkSize)-2:
             ourUniverse.gameBoards[chunkBlock] = classes.Worldtile(chunkBlock[0],chunkBlock[1],ourUniverse,True)
-def attemptTravel(actor,index,movement):
+def attemptTravel(actor,index,movement,force=False):
         if movement not in globals.multiverse:
             prepareUniverse(movement)
         if testTravel(actor, index, movement):
             Step(actor,index,movement,True)
+        elif force:
+            Step(actor, index, movement, True)
 def D4C(actor,victim,index,movement):
     prepareUniverse(index,movement)
     if testTravel(actor, index, movement) and testTravel(victim,index,movement):
