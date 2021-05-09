@@ -9,12 +9,15 @@ import worlds
 from enum import Enum
 dirPath = "sprites"
 clock = pygame.time.Clock()
-images = {}
-images_alpha = {}
+tempImages = {"images_alpha":{},"images_nostretch":{}}
+images ={}
 imagekeys = []
 for file in sorted(os.listdir(dirPath)):
     if file.endswith("_A"):
-        images_alpha[int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))
+        tempImages["images_alpha"][int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))
+        imagekeys.append(int(file[:4]))
+    elif file.endswith("_nostretch"):
+        tempImages["images_nostretch"][int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))
         imagekeys.append(int(file[:4]))
     else:
         images[int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))
@@ -28,10 +31,12 @@ for number in imagekeys:
     if number in images:
         images[number] = pygame.transform.scale(images[number],(32,32))
         images[number] = images[number].convert()
-    elif number in images_alpha:
-        images_alpha[number] = pygame.transform.scale(images_alpha[number], (32, 32))
-        images[number] = images_alpha[number].convert_alpha()
-
+    elif number in tempImages["images_alpha"]:
+        tempImages["images_alpha"][number] = pygame.transform.scale(tempImages["images_alpha"][number], (32, 32))
+        images[number] = tempImages["images_alpha"][number].convert_alpha()
+    elif number in tempImages["images_nostretch"]:
+        images[number] = tempImages["images_nostretch"][number].convert_alpha()
+#
 #board related stuff
 boardDistancing = 32
 cameraOffsetX = 0
@@ -204,6 +209,7 @@ def _render_screen(universe):
             screen.blit(_render_text(text),(menu.pos[0],menu.pos[1]+20))
     screen.blit(_render_text(str(list(globals.tileDictionary)[buildType%len(globals.tileDictionary)])), (60, 50))
     screen.blit(_render_text("universe "+str(globals.currentUniverse)), (resolution[0]/2-20, 20))
+    screen.blit(_render_text(str(globals.multiverse[globals.currentUniverse].worldType["name"])), (resolution[0] / 2 - 20,40))
     screen.blit(images[globals.tileDictionary[list(globals.tileDictionary)[buildType%len(globals.tileDictionary)]]["spriteId"]],(10,50))
     screen.blit(_render_text(str(pygame.mouse.get_pos())), (10, 40))
 def _update_objects(universe):
