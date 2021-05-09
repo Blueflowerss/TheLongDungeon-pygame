@@ -1,0 +1,5 @@
+
+{"0":{"behavior":"empty","spriteId":4,"name":"air"},
+"2":{"behavior":"wall","spriteId":2,"name":"stoneWall"},
+"3":{"behavior":"empty","spriteId":6,"name":"woodFloor"},
+"1":{"behavior":"wall","spriteId":5,"name":"brickWall"}}

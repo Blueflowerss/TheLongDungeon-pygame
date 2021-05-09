@@ -1,0 +1,4 @@
+{"grassy":{"name":"Plains","ground":"stoneWall","grass":"grass","mountains":true,"terrain":"plains","buildings":false,"chance":100},
+"autumn":{"name":"Red Leaves","ground":"redStoneWall","grass":"redgrass","mountains":true,"terrain":"plains","buildings":false,"chance":10},
+"collapse":{"name":"Ruins","ground":"redStoneWall","grass":"redgrass","mountains":true,"terrain":"plains","buildings":true,"chance":10},
+"mountains":{"name":"Mountains","ground":"stoneWall","grass":"grass","mountains":true,"terrain":"mountains","buildings":false,"chance":30}}
