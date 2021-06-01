@@ -30,11 +30,9 @@ class Worldtile:
                  xPos,yPos = xTile + self.pos[0] * globals.chunkSize,yTile + self.pos[1] * globals.chunkSize
                  if xPos > -1 and yPos > -1 and xPos < globals.worldSize and yPos < globals.worldSize:
                     if (xPos,yPos) in universe.alteredTerrain:
-                        terrain = universe.alteredTerrain[xPos,yPos]
-                        self.tiles[terrain[0],terrain[1]] = Tile(terrain[0],terrain[1],terrain[2],universe)
+                        self.tiles[xPos,yPos] = universe.alteredTerrain[xPos,yPos]
                     elif (xPos,yPos) in universe.loadedTerrain:
-                        terrain = universe.loadedTerrain[xPos,yPos]
-                        self.tiles[terrain[0],terrain[1]] = Tile(terrain[0],terrain[1],terrain[2],universe)
+                        self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
                     else:
                         perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
                         if perlinTile == 1 and universe.worldType["mountains"]:
@@ -43,6 +41,14 @@ class Worldtile:
                         else:
                             tile = Tile(xPos,yPos,globals.tileHash[universe.worldType["grass"]],universe)
                             self.tiles[(xPos,yPos)] = tile
+        if universe.worldType["treeGen"]:
+            for number in range(2,universe.worldType["treeAmount"]):
+                random.seed(universe.index*xPos*yPos*number)
+                spot = random.randint(xPos - globals.chunkSize, xPos), random.randint(yPos - globals.chunkSize,
+                                                                       yPos)
+                if (spot[0],spot[1]) in self.tiles and (spot[0],spot[1]) not in universe.alteredTerrain:
+                    if self.tiles[spot[0],spot[1]].type == "empty":
+                        self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
 class TextInput:
     def __init__(self,x,y,width,height,mode):
         self.pos = (x,y)
@@ -116,14 +122,6 @@ class WorldGen:
         if mode in keys:
             keys[mode]()
 
-    def populateSquare(universe):
-        random.seed(globals.seed+universe)
-        locations = []
-        for x in range(0,10):
-            for y in range(0,10):
-                locations.append((int(random.uniform(x*100,y*100)),(int(random.uniform(y*100,x*100)))))
-        for number in locations:
-            WorldGen._generate_building("room", number[0],number[1],10,10, universe)
 class Universe:
     def __init__(self,index):
         self.index = index
@@ -131,6 +129,7 @@ class Universe:
         self.actors = {}
         self.items = []
         self.board = {}
+        self.entities = []
         self.objectMap = {}
         self.gameBoards = {}
         self.loadedTerrain = {}
@@ -240,3 +239,8 @@ class Enemy:
                 if target.type in collisions:
                     collisions[target.type]()
             #else:
+class Entity:
+    def __init__(self,x,y,type):
+        self.pos = (x,y)
+        self.objectType = globals.readFromFile("data/entityType.json",True)[type]
+        print(self.objectType)

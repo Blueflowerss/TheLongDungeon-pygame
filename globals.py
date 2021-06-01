@@ -2,7 +2,7 @@ import classes
 import json
 import os
 import pickle
-#
+import worlds
 multiverse = {}
 seed = 5552
 chunkSize = 16
@@ -27,15 +27,13 @@ def createUniverse(index):
     if index not in multiverse:
         multiverse[index] = classes.Universe(index)
         quickload(index)
-    if multiverse[index].worldType["buildings"]:
-        classes.WorldGen.populateSquare(index)
+        worlds.prepareWorld(index)
 def ready():
     global tileDictionary
     tileDictionary = readFromFile("./data/tiles.json",jsonize=True)
     for item in tileDictionary.values():
         tileHash[item["name"]] = item["spriteId"]
     createUniverse(currentUniverse)
-    classes.WorldGen.populateSquare(currentUniverse)
 def readFromFile(filePath,jsonize=False):
     if os.path.exists(filePath):
         with open(filePath,"r") as f:
@@ -43,6 +41,7 @@ def readFromFile(filePath,jsonize=False):
                 return json.loads(f.read())
             else:
                 return f.read()
+            f.close()
     else:
         raise Exception("ReadFromFile: file path invalid.")
 
@@ -64,7 +63,7 @@ def quicksave(universeNumber):
             savedUniverse["tiles"][str(universeNumber)] = {}
             object = multiverse[universeNumber].alteredTerrain.values()
             for item in object:
-                savedUniverse["tiles"][str(universeNumber)][str(int(item[0]))+" "+str(int(item[1]))] = item[2]
+                savedUniverse["tiles"][str(universeNumber)][str(int(item.pos[0]))+" "+str(int(item.pos[1]))] = item.id
             if not os.path.exists("worlddata/world"+str(universeNumber)):
                 os.makedirs("worlddata/world"+str(universeNumber))
             with open("worlddata/world"+str(universeNumber)+"/world.json","w") as world:
@@ -92,7 +91,7 @@ def quickload(universeNumber):
                         pos = object.split()
                         tile = save["tiles"][str(universeNumber)][object]
                         if universeNumber in multiverse:
-                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]
+                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = classes.Tile(int(pos[0]),int(pos[1]),tile,multiverse[universeNumber])
                         else:
                             createUniverse(universeNumber)
                             multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]

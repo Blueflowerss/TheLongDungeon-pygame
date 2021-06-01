@@ -9,4 +9,5 @@
 "401":{"behavior":"empty","spriteId":401,"name":"redgrass"},
 "500":{"behavior":"wall","spriteId":500,"name":"stoneWall"},
 "501":{"behavior":"wall","spriteId":501,"name":"redStoneWall"},
-"550":{"behavior":"wall","spriteId":550,"name":"tre"}}
+"550":{"behavior":"wall","spriteId":550,"name":"tree"},
+"551":{"behavior":"wall","spriteId":551,"name":"redTree"}}

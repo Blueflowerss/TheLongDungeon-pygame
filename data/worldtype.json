@@ -1,16 +1,16 @@
-{"grassy":{"name":"Plains","ground":"stoneWall","grass":"grass",
-"mountains":true,"terrain":"plains","buildings":false,
-"chance":1000
+{"grassy":{"name":"Fields","ground":"stoneWall","grass":"grass","tree":"tree","terrain":"plains",
+"mountains":true,"buildings":false,"treeGen":true,
+"chance":1000,"treeAmount":10
 },
-"autumn":{"name":"Red Leaves","ground":"redStoneWall","grass":"redgrass",
-"mountains":true,"terrain":"plains","buildings":false,
-"chance":100
+"autumn":{"name":"Red Leaves","ground":"redStoneWall","grass":"redgrass","tree":"redTree","terrain":"plains",
+"mountains":true,"buildings":false,"treeGen":true,
+"chance":100,"treeAmount":32
 },
-"collapse":{"name":"Ruins","ground":"redStoneWall","grass":"redgrass",
-"mountains":true,"terrain":"plains","buildings":true,
-"chance":10
+"collapse":{"name":"Ruins","ground":"redStoneWall","grass":"redgrass","tree":"tree","terrain":"plains",
+"mountains":true,"buildings":true,"treeGen":true,
+"chance":10,"treeAmount":10
 },
-"mountains":{"name":"Mountains","ground":"stoneWall","grass":"grass",
-"mountains":true,"terrain":"mountains","buildings":false,
-"chance":300
+"mountains":{"name":"Hills","ground":"stoneWall","grass":"grass","tree":"tree","terrain":"mountains",
+"mountains":true,"buildings":false,"treeGen":true,
+"chance":300,"treeAmount":32
 }}

@@ -10,7 +10,7 @@ def alter_tile(tile,id):
     if chunkBlock in ourUniverse.gameBoards:
         if tile in ourUniverse.gameBoards[chunkBlock].tiles:
             ourUniverse.gameBoards[chunkBlock].tiles[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
-            ourUniverse.alteredTerrain[tile] = [tile[0],tile[1],id]
+            ourUniverse.alteredTerrain[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
             ourUniverse.altered = True
     elif chunkBlock not in ourUniverse.gameBoards:
         if chunkBlock[0] > 1 and chunkBlock[1]> 1 and chunkBlock[0] < (globals.worldSize/globals.chunkSize)-2 and chunkBlock[1] < (globals.worldSize/globals.chunkSize)-2:

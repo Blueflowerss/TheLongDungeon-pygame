@@ -86,7 +86,6 @@ class control(Enum):
     BUILD = 3
 currentControl = control.MOVE
 def keyHandler(key):
-
     def DIG(direction):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
@@ -184,16 +183,22 @@ def keyHandler(key):
 def _render_text(text):
     return font.render(text,False,(255,255,255))
 def _render_screen(universe):
-    screen.fill((0, 0, 0))
+    screen.fill((80, 80, 80))
     global currentActor
+    actor = universe.actors[currentActor]
     if currentActor in universe.actors:
         cameraOffsetX, cameraOffsetY = universe.actors[currentActor].pos[0] * -boardDistancing + resolution[0]/2, universe.actors[currentActor].pos[1] * -boardDistancing + resolution[1] / 2
     else:
         cameraOffsetX, cameraOffsetY = 0,0
     for object in universe.board.values():
-        #add tiling
-        screen.blit(images[object.spriteId],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
+        if (object.pos[0],object.pos[1]-1) in universe.board and (object.pos[0],object.pos[1]+1) in universe.board and (object.pos[0]+1,object.pos[1]) in universe.board and (object.pos[0]-1,object.pos[1]) in universe.board:
+                if universe.board[object.pos[0],object.pos[1]-1].type == "wall" and universe.board[object.pos[0],object.pos[1]+1].type =="wall" and universe.board[object.pos[0]+1,object.pos[1]].type == "wall" and universe.board[object.pos[0]-1,object.pos[1]].type == "wall":
+                    pass
+                else:
+                    screen.blit(images[object.spriteId],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for object in universe.actors.values():
+        screen.blit(images[3],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
+    for object in universe.entities:
         screen.blit(images[3],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for action in range(0,len(globals.actionLog)):
         screen.blit((_render_text(globals.actionLog[action])),(0,80+20*action))
@@ -208,7 +213,7 @@ def _render_screen(universe):
             screen.blit(_render_text(menu.mode), (menu.pos))
             screen.blit(_render_text(text),(menu.pos[0],menu.pos[1]+20))
     screen.blit(_render_text(str(list(globals.tileDictionary)[buildType%len(globals.tileDictionary)])), (60, 50))
-    screen.blit(_render_text("universe "+str(globals.currentUniverse)), (resolution[0]/2-20, 20))
+    screen.blit(_render_text("earth "+str(globals.currentUniverse)), (resolution[0]/2-20, 20))
     screen.blit(_render_text(str(globals.multiverse[globals.currentUniverse].worldType["name"])), (resolution[0] / 2 - 20,40))
     screen.blit(images[globals.tileDictionary[list(globals.tileDictionary)[buildType%len(globals.tileDictionary)]]["spriteId"]],(10,50))
     screen.blit(_render_text(str(pygame.mouse.get_pos())), (10, 40))
