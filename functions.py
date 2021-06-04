@@ -2,7 +2,6 @@ import globals
 import classes
 import worlds
 ## THING DOERS
-#
 def alter_tile(tile,id):
     globals.initialize()
     ourUniverse = globals.multiverse[globals.currentUniverse]
@@ -12,6 +11,8 @@ def alter_tile(tile,id):
             ourUniverse.gameBoards[chunkBlock].tiles[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
             ourUniverse.alteredTerrain[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
             ourUniverse.altered = True
+        if tile in ourUniverse.objectMap:
+            ourUniverse.worldEntities.remove(ourUniverse.objectMap[tile])
     elif chunkBlock not in ourUniverse.gameBoards:
         if chunkBlock[0] > 1 and chunkBlock[1]> 1 and chunkBlock[0] < (globals.worldSize/globals.chunkSize)-2 and chunkBlock[1] < (globals.worldSize/globals.chunkSize)-2:
             ourUniverse.gameBoards[chunkBlock] = classes.Worldtile(chunkBlock[0],chunkBlock[1],ourUniverse,True)

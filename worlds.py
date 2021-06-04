@@ -13,6 +13,7 @@ def ready():
     worldData = globals.readFromFile("./data/worldtype.json",True)
     for type in worldData:
         worldChances[type] = worldData[type]["chance"]
+
 def prepareWorld(universe):
     if globals.multiverse[universe].worldType["buildings"]:
         pass

@@ -63,12 +63,12 @@ if os.path.exists("data/player.dat"):
             if player["universe"] in globals.multiverse:
                 functions.prepareUniverse(player["universe"])
                 globals.multiverse[player["universe"]].actors[globals.playerId] =\
-                    classes.Actor(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
+                    classes.Player(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
             else:
                 globals.multiverse[player["universe"]] = classes.Universe(player["universe"])
                 functions.prepareUniverse(player["universe"])
                 globals.multiverse[player["universe"]].actors[globals.playerId] =\
-                    classes.Actor(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
+                    classes.Player(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
             globals.currentUniverse = player["universe"]
             globals.nextActor += 1
 else:
@@ -84,6 +84,7 @@ class control(Enum):
     MOVE = 1
     DIG = 2
     BUILD = 3
+    INTERACT = 4
 currentControl = control.MOVE
 def keyHandler(key):
     def DIG(direction):
@@ -103,9 +104,21 @@ def keyHandler(key):
         currentControl = control.MOVE
     def MOVE(direction):
         globals.multiverse[globals.currentUniverse].actors[currentActor].move_object(direction)
+    def INTERACT(direction):
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
+        if tile in ourUniverse.objectMap:
+            testingMethod = getattr(ourUniverse.objectMap[tile], "_interact", None)
+            if callable(testingMethod):
+                ourUniverse.objectMap[tile]._interact()
+            else:
+                globals.insertToActionLog("Non Interactible")
+        global currentControl
+        _update_board(ourUniverse)
+        currentControl = control.MOVE
     def controlHandler(direction):
         if direction:
-            mode = {1:MOVE,2:DIG,3:BUILD}
+            mode = {1:MOVE,2:DIG,3:BUILD,4:INTERACT}
             if currentControl.value in mode:
                 mode[currentControl.value](direction)
     def up():
@@ -125,6 +138,7 @@ def keyHandler(key):
     def upperRight():
         controlHandler((1, -1))
     def escape():
+            classes.worldManager.unloadWorldTile()
             for universe in globals.multiverse.keys():
                 globals.quicksave(universe)
             quit()
@@ -159,11 +173,14 @@ def keyHandler(key):
         functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[currentActor], globals.currentUniverse, globals.currentUniverse-1)
         _update(globals.multiverse[globals.currentUniverse])
     def D4C():
-        global boardDistancing
-        boardDistancing += 8
+        pos = globals.multiverse[globals.currentUniverse].actors[currentActor].pos
+        globals.multiverse[globals.currentUniverse].entities.append(classes.Door(pos[0], pos[1], "door"))
+        #global boardDistancing
+        #boardDistancing += 8
     def spawnActor():
-        global boardDistancing
-        boardDistancing -= 8
+        pass
+        #global boardDistancing
+        #boardDistancing -= 8
     def clearInput():
         global text
         global guiInput
@@ -172,9 +189,12 @@ def keyHandler(key):
             guiInput.pop(currentWindow)
         text = ""
         guiInput = {}
+    def interact():
+        global currentControl
+        currentControl = control.INTERACT
     keys = {119:up,115:down,97:left,100:right,113:q,101:e,27:escape,122:z,99:c,118:v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,120:x,106:travelBackward,107:travelForward,44:D4C,46:spawnActor,
-            13:clearInput}
+            13:clearInput,32:interact}
     #print(key)
     if key in keys:
         keys[key]()
@@ -196,9 +216,9 @@ def _render_screen(universe):
                     pass
                 else:
                     screen.blit(images[object.spriteId],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
-    for object in universe.actors.values():
-        screen.blit(images[3],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for object in universe.entities:
+        screen.blit(images[object.sprites[int(object.state)]],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
+    for object in universe.actors.values():
         screen.blit(images[3],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for action in range(0,len(globals.actionLog)):
         screen.blit((_render_text(globals.actionLog[action])),(0,80+20*action))
@@ -222,15 +242,23 @@ def _update_objects(universe):
     for actor in universe.actors.values():
         universe.objectMap[actor.pos] = actor
         actor._process()
+    for object in universe.entities:
+        universe.objectMap[object.pos] = object
+        #Process what the object does
+        if globals.ifMethodExists(object,"_process"):
+            object._process()
     for object in universe.objects:
         universe.objectMap[object.pos] = object
         #Process what the object does
         object._process()
+
 def _update_board(universe):
     universe.board = {}
     for board in universe.gameBoards.values():
         for tile in board.tiles.values():
             universe.board[tile.pos] = tile
+        for entity in board.entities:
+            print(entity)
 def _update(universe):
     #process actors and objects
     _update_objects(universe)
