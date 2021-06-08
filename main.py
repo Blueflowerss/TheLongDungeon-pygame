@@ -12,6 +12,7 @@ clock = pygame.time.Clock()
 tempImages = {"images_alpha":{},"images_nostretch":{}}
 images ={}
 imagekeys = []
+print("Another hello from Bohemian.")
 for file in sorted(os.listdir(dirPath)):
     if file.endswith("_A"):
         tempImages["images_alpha"][int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))
@@ -137,9 +138,12 @@ def keyHandler(key):
         controlHandler((-1, -1))
     def upperRight():
         controlHandler((1, -1))
+    def middle():
+        controlHandler((0,0))
     def escape():
-            classes.worldManager.unloadWorldTile()
             for universe in globals.multiverse.keys():
+                print(universe)
+                classes.WorldManager.unloadEntities(universe)
                 globals.quicksave(universe)
             quit()
     def v():
@@ -193,9 +197,8 @@ def keyHandler(key):
         global currentControl
         currentControl = control.INTERACT
     keys = {119:up,115:down,97:left,100:right,113:q,101:e,27:escape,122:z,99:c,118:v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
-            1073741919:upperLeft,1073741920:up,1073741921:upperRight,120:x,106:travelBackward,107:travelForward,44:D4C,46:spawnActor,
+            1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,120:x,106:travelBackward,107:travelForward,44:D4C,46:spawnActor,
             13:clearInput,32:interact}
-    #print(key)
     if key in keys:
         keys[key]()
     for universe in globals.multiverse.values():

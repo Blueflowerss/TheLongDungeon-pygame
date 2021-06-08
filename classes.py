@@ -44,11 +44,13 @@ class Worldtile:
                         else:
                             tile = Tile(xPos,yPos,globals.tileHash[universe.worldType["grass"]],universe)
                             self.tiles[(xPos,yPos)] = tile
-
+        toBeDeleted = []
         for entity in universe.worldEntities:
             if entity.pos[0] in range(originX,originX+globals.chunkSize) and entity.pos[1] in range(originY,originY+globals.chunkSize):
-                universe.worldEntities.remove(entity)
+                toBeDeleted.append(entity)
                 universe.entities.append(entity)
+        for entity in toBeDeleted:
+            universe.worldEntities.remove(entity)
         if universe.worldType["treeGen"]:
             for number in range(2,universe.worldType["treeAmount"]):
                 random.seed(universe.index*xPos*yPos*number)
@@ -92,21 +94,32 @@ class WorldManager:
                 else:
                     ourUniverse.gameBoards[chunkMove[0] + number, chunkMove[1] + number1] = Worldtile(
                         chunkMove[0] + number, chunkMove[1] + number1,ourUniverse,True)
-    def unloadWorldTile(renderDistance,actor,universe):
+    def unloadWorldTile(universe,renderDistance=0,centerOfDeletion=(0,0)):
         ourUniverse = globals.multiverse[universe]
         toBeDeleted = []
+        entitiesHitList = []
         for object in ourUniverse.gameBoards.values():
-            dist = tuple(map(lambda i, j: i - j, actor.tempchunkPos,object.pos))
-            if abs(dist[0]) > renderDistance or abs(dist[1]) > renderDistance:
-                toBeDeleted.append(object)
+                dist = tuple(map(lambda i, j: i - j, (int(centerOfDeletion[0]/16),int(centerOfDeletion[1]/16)),object.pos))
+                if abs(dist[0]) > renderDistance or abs(dist[1]) > renderDistance:
+                    toBeDeleted.append(object)
         for entity in ourUniverse.entities:
-            dist = tuple(map(lambda i, j: i - j, actor.pos,entity.pos))
+            dist = tuple(map(lambda i, j: i - j, centerOfDeletion,entity.pos))
             if abs(dist[0]) > 100 or abs(dist[1]) > 100:
                 ourUniverse.worldEntities.append(entity)
-                ourUniverse.entities.remove(entity)
+                entitiesHitList.append(entity)
         for object in toBeDeleted:
             ourUniverse.gameBoards.pop(object.pos)
-
+        for entity in entitiesHitList:
+            ourUniverse.entities.remove(entity)
+        entitiesHitList = None
+    def unloadEntities(universe):
+        ourUniverse = globals.multiverse[universe]
+        hitlist = []
+        for entity in ourUniverse.entities:
+            ourUniverse.worldEntities.append(entity)
+            hitlist.append(entity)
+        for entity in hitlist:
+            ourUniverse.entities.remove(entity)
 class WorldGen:
     def _generate_building(mode,X,Y,width,height,universe):
         def room():
@@ -138,7 +151,7 @@ class WorldGen:
 
 #BASE ENTITIES
 class Universe:
-    def __init__(self,index):
+    def __init__(self,index,type=None):
         self.index = index
         self.objects = []
         self.actors = {}
@@ -150,14 +163,17 @@ class Universe:
         self.loadedTerrain = {}
         self.alteredTerrain = {}
         self.altered = False
-        randNumber = int(self.index/20)
-        tempNumber = -500000
-        random.seed(randNumber)
-        choices = []
-        if randNumber != tempNumber:
-            tempNumber = randNumber
-            choices = (random.choices(list(worlds.worldChances.keys()), list(worlds.worldChances.values()), k=20))
-        self.worldType = worlds.worldData[list(choices)[self.index%len(choices)]]
+        if type == None:
+            randNumber = int(self.index/20)
+            tempNumber = -500000
+            random.seed(randNumber)
+            choices = []
+            if randNumber != tempNumber:
+                tempNumber = randNumber
+                choices = (random.choices(list(worlds.worldChances.keys()), list(worlds.worldChances.values()), k=20))
+            self.worldType = worlds.worldData[list(choices)[self.index%len(choices)]]
+        else:
+            self.worldType = type
 class Entity:
     def __init__(self,x,y,type):
         self.pos = (x,y)
@@ -238,7 +254,7 @@ class Player(Actor):
             chunkPos = (int(self.pos[0] / globals.chunkSize), int(self.pos[1] / globals.chunkSize))
             if chunkPos != self.tempchunkPos:
                 WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
-                WorldManager.unloadWorldTile(3, self, globals.currentUniverse)
+                WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
                 self.tempchunkPos = chunkPos
 class Enemy(Actor):
     def __init__(self,x,y,id,universe):

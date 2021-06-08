@@ -1,1 +1,1 @@
-{"tiles": {"195": {}}, "entities": {"195": {}}}
+{"tiles": {"195": {}}, "entities": {}, "type": {"name": "Fields", "ground": "stoneWall", "grass": "grass", "tree": "tree", "terrain": "plains", "mountains": true, "buildings": false, "treeGen": true, "chance": 1000, "treeAmount": 10}}

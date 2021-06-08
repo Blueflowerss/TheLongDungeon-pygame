@@ -12,7 +12,8 @@ def alter_tile(tile,id):
             ourUniverse.alteredTerrain[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
             ourUniverse.altered = True
         if tile in ourUniverse.objectMap:
-            ourUniverse.worldEntities.remove(ourUniverse.objectMap[tile])
+            if ourUniverse.objectMap[tile] in ourUniverse.entities:
+                ourUniverse.entities.remove(ourUniverse.objectMap[tile])
     elif chunkBlock not in ourUniverse.gameBoards:
         if chunkBlock[0] > 1 and chunkBlock[1]> 1 and chunkBlock[0] < (globals.worldSize/globals.chunkSize)-2 and chunkBlock[1] < (globals.worldSize/globals.chunkSize)-2:
             ourUniverse.gameBoards[chunkBlock] = classes.Worldtile(chunkBlock[0],chunkBlock[1],ourUniverse,True)
@@ -58,7 +59,8 @@ def Step(actor,index,movement,follow):
         for board in boardsToBeDeleted:
             globals.multiverse[index].gameBoards.pop(board.pos)
         for universe in universesToBeDeleted:
-            if globals.multiverse[universe].altered or globals.multiverse[universe].actors:
+            if globals.multiverse[universe].altered or globals.multiverse[universe].actors or globals.multiverse[universe].entities:
+                classes.WorldManager.unloadWorldTile(universe)
                 globals.quicksave(universe)
             globals.multiverse.pop(universe)
         globals.insertToActionLog("Teleported to earth " + str(movement))
