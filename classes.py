@@ -9,19 +9,168 @@ import functions
 from events import Events
 clock = pygame.time.Clock()
 
-class Tile:
+
+#BASE ENTITIES
+class Universe:
+    def __init__(self,index,type=None):
+        self.index = index
+        self.objects = []
+        self.actors = {}
+        self.board = {}
+        self.entities = []
+        self.worldEntities = []
+        self.objectMap = {}
+        self.gameBoards = {}
+        self.loadedTerrain = {}
+        self.alteredTerrain = {}
+        self.altered = False
+        if type == None:
+            randNumber = int(self.index/20)
+            tempNumber = -500000
+            random.seed(randNumber)
+            choices = []
+            if randNumber != tempNumber:
+                tempNumber = randNumber
+                choices = (random.choices(list(worlds.worldChances.keys()), list(worlds.worldChances.values()), k=20))
+            self.worldType = worlds.worldData[list(choices)[self.index%len(choices)]]
+        else:
+            self.worldType = type
+class Entity:
+    def __init__(self,x,y,type):
+        self.pos = (x,y)
+        self.type = type
+        self.id = type
+        self.extraData = {}
+class steppingEntity(Entity):
+    def __init__(self,x,y,type):
+        super().__init__(x,y,type)
+    def step(self,distance,origin):
+        print(origin+distance)
+class Actor(Entity):
     def __init__(self,x,y,id,universe):
+        super().__init__(x, y, type)
+        self.important = True
+        self.type = "actor"
+        self.spriteId = 3
+        self.id = id
+        self.tempchunkPos = (int(self.pos[0]/16),int(self.pos[1]/16))
+        self.actionPointsMax = 5
+        self.actionPointsRegen = 1
+        self.HP = 10
+        self.maxHP = 10
+        self.currentUniverse = universe
+    def move_object(object, amount):
+        globals.initialize()
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        if (object.pos[0] + amount[0], object.pos[1] + amount[1]) in ourUniverse.board:
+            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
+            move = tuple(map(sum, zip(object.pos, amount)))
+            chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
+            def actor():
+                pass
+            def wall():
+                pass
+            def empty():
+                object.pos = curBoard.pos
+            if (curBoard.pos) in ourUniverse.objectMap:
+                target = ourUniverse.objectMap[curBoard.pos]
+                if "blocks" in target.extraData:
+                    pass
+                else:
+                    empty()
+            elif (curBoard.pos) in ourUniverse.board:
+                target = ourUniverse.board[curBoard.pos]
+                if "blocks" in ourUniverse.board[curBoard.pos].extraData:
+                    pass
+                else:
+                    empty()
+class furniture(Entity):
+    def __init__(self, x, y, type):
+        super().__init__(x, y, type)
+        self.blocks = False
+        self.sprite = 0
+class interactibleFurniture(furniture):
+    def __init__(self, x, y, type):
+        super().__init__(x, y, type)
+        self.state = False
+class Tile(Entity):
+    def __init__(self,x,y,id,universe):
+        super().__init__(x, y, type)
         if str(id) in globals.tileDictionary:
             tile = globals.tileDictionary[str(id)]
+            if tile["behavior"] == "blocks":
+                self.extraData["blocks"] = 0
         else:
             tile = globals.tileDictionary[str(globals.tileHash[universe.worldType["ground"]])]
-        self.type = tile["behavior"]
         self.spriteId = tile["spriteId"]
         self.name = tile["name"]
         self.id = id
         self.pos = (x,y)
         self.width = 32
         self.height = 32
+#ENTITIES
+class Player(Actor):
+    def __init__(self,x,y,id,universe):
+        super().__init__(x,y,id,universe)
+        self.type = "actor"
+        self.spriteId = 3
+        WorldManager.loadWorldTile(self.tempchunkPos[0], self.tempchunkPos[1], 3, self.currentUniverse)
+    def _process(self):
+            chunkPos = (int(self.pos[0] / globals.chunkSize), int(self.pos[1] / globals.chunkSize))
+            if chunkPos != self.tempchunkPos:
+                WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
+                WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
+                self.tempchunkPos = chunkPos
+class Enemy(Actor):
+    def __init__(self,x,y,id,universe):
+        super().__init__(self,x,y,id,universe)
+        self.type = "enemy"
+        self.spriteId = 3
+        self.pos = (x,y)
+        self.id = id
+        self.actionPointsMax = 5
+        self.actionPointsRegen = 1
+        self.HP = 10
+        self.maxHP = 10
+        self.currentUniverse = 0
+    def _process(self):
+        globals.initialize()
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        if 0 > 3:
+            target = ourUniverse.actors[0]
+            direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
+            direction = (math.floor(direction.x),math.floor(direction.y))
+            self.move_object(direction)
+class Door(interactibleFurniture):
+    def __init__(self, x, y):
+        super().__init__(x,y,"door")
+        jsonObject = globals.readFromFile("data/entityType.json", True)["door"]
+        self.sprites = (jsonObject["trueSprite"], jsonObject["falseSprite"])
+        self.extraData["interactible"] = 0
+        self.sprite = 0
+        if self.state:
+            self.extraData["blocks"] = 0
+            self.sprite = self.sprites[0]
+        else:
+            self.extraData.pop("blocks",None)
+            self.sprite = self.sprites[1]
+    def _interact(self):
+        if "blocks" in self.extraData:
+            self.sprite = self.sprites[0]
+            self.extraData.pop("blocks",None)
+        else:
+            self.sprite = self.sprites[1]
+            self.extraData["blocks"] = 0
+
+
+
+class Tree(furniture):
+    def __init__(self,x,y):
+        super().__init__(x, y,"tree")
+        jsonObject = globals.readFromFile("data/entityType.json", True)["tree"]
+        self.sprite = jsonObject["sprite"]
+        self.extraData["blocks"] = 0
+#systems
 class Worldtile:
     def __init__(self,x,y,universe,generateStructures=False):
         self.pos = (x,y)
@@ -40,6 +189,7 @@ class Worldtile:
                         perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
                         if perlinTile == 1 and universe.worldType["mountains"]:
                             tile = Tile(xPos,yPos,globals.tileHash[universe.worldType["ground"]],universe)
+                            tile.extraData["blocks"] = 0
                             self.tiles[(xPos,yPos)] = tile
                         else:
                             tile = Tile(xPos,yPos,globals.tileHash[universe.worldType["grass"]],universe)
@@ -57,8 +207,12 @@ class Worldtile:
                 spot = random.randint(xPos - globals.chunkSize, xPos), random.randint(yPos - globals.chunkSize,
                                                                        yPos)
                 if (spot[0],spot[1]) in self.tiles and (spot[0],spot[1]) not in universe.alteredTerrain:
-                    if self.tiles[spot[0],spot[1]].type == "empty":
-                        self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
+                    if "blocks" not in self.tiles[spot[0],spot[1]].extraData:
+                        tree = Tree(spot[0],spot[1])
+                        tree.extraData["noSave"] = 0
+                        tree.sprite = globals.tileHash[universe.worldType["tree"]]
+                        universe.entities.append(tree)
+                        #self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
 class TextInput:
     def __init__(self,x,y,width,height,mode):
         self.pos = (x,y)
@@ -147,145 +301,6 @@ class WorldGen:
         keys = {"room":room,"square":square}
         if mode in keys:
             keys[mode]()
-
-
-#BASE ENTITIES
-class Universe:
-    def __init__(self,index,type=None):
-        self.index = index
-        self.objects = []
-        self.actors = {}
-        self.board = {}
-        self.entities = []
-        self.worldEntities = []
-        self.objectMap = {}
-        self.gameBoards = {}
-        self.loadedTerrain = {}
-        self.alteredTerrain = {}
-        self.altered = False
-        if type == None:
-            randNumber = int(self.index/20)
-            tempNumber = -500000
-            random.seed(randNumber)
-            choices = []
-            if randNumber != tempNumber:
-                tempNumber = randNumber
-                choices = (random.choices(list(worlds.worldChances.keys()), list(worlds.worldChances.values()), k=20))
-            self.worldType = worlds.worldData[list(choices)[self.index%len(choices)]]
-        else:
-            self.worldType = type
-class Entity:
-    def __init__(self,x,y,type):
-        self.pos = (x,y)
-        self.type = type
-        self.id = type
-class steppingEntity(Entity):
-    def __init__(self,x,y,type):
-        super().__init__(x,y,type)
-    def step(self,distance,origin):
-        print(origin+distance)
-class Actor(Entity):
-    def __init__(self,x,y,id,universe):
-        super().__init__(x, y, type)
-        self.important = True
-        self.type = "actor"
-        self.spriteId = 3
-        self.id = id
-        self.tempchunkPos = (int(self.pos[0]/16),int(self.pos[1]/16))
-        self.actionPointsMax = 5
-        self.actionPointsRegen = 1
-        self.HP = 10
-        self.maxHP = 10
-        self.currentUniverse = universe
-    def move_object(object, amount):
-        globals.initialize()
-        ourUniverse = globals.multiverse[globals.currentUniverse]
-        if (object.pos[0] + amount[0], object.pos[1] + amount[1]) in ourUniverse.board:
-            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
-            move = tuple(map(sum, zip(object.pos, amount)))
-            chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
-            def actor():
-                pass
-            def wall():
-                pass
-            def door():
-                if ourUniverse.objectMap[move].blocks == True:
-                    pass
-                else:
-                    empty()
-            def empty():
-                object.pos = curBoard.pos
-            collisions = {"actor": actor, "wall": wall, "empty": empty,"door":door}
-            if (curBoard.pos) in ourUniverse.objectMap:
-                target = ourUniverse.objectMap[curBoard.pos]
-                if target.type is not None:
-                    if target.type in collisions:
-                        collisions[target.type]()
-                    else:
-                        pass
-            elif (curBoard.pos) in ourUniverse.board:
-                target = ourUniverse.board[curBoard.pos]
-                if target.type in collisions:
-                    collisions[target.type]()
-            else:
-                collisions["empty"]()
-class furniture(Entity):
-    def __init__(self, x, y, type):
-        super().__init__(x, y, type)
-        self.blocks = False
-class furnitureUsable(furniture):
-    def __init__(self, x, y, type):
-        super().__init__(x, y, type)
-        self.state = False
-        self.sprites = None
-    def _interact(self):
-        if self.state:
-            self.state = False
-        else:
-            self.state = True
-#ENTITIES
-class Player(Actor):
-    def __init__(self,x,y,id,universe):
-        super().__init__(x,y,id,universe)
-        self.type = "actor"
-        self.spriteId = 3
-        WorldManager.loadWorldTile(self.tempchunkPos[0], self.tempchunkPos[1], 3, self.currentUniverse)
-    def _process(self):
-            chunkPos = (int(self.pos[0] / globals.chunkSize), int(self.pos[1] / globals.chunkSize))
-            if chunkPos != self.tempchunkPos:
-                WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
-                WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
-                self.tempchunkPos = chunkPos
-class Enemy(Actor):
-    def __init__(self,x,y,id,universe):
-        super().__init__(self,x,y,id,universe)
-        self.type = "enemy"
-        self.spriteId = 3
-        self.pos = (x,y)
-        self.id = id
-        self.actionPointsMax = 5
-        self.actionPointsRegen = 1
-        self.HP = 10
-        self.maxHP = 10
-        self.currentUniverse = 0
-    def _process(self):
-        globals.initialize()
-        ourUniverse = globals.multiverse[globals.currentUniverse]
-        if 0 > 3:
-            target = ourUniverse.actors[0]
-            direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
-            direction = (math.floor(direction.x),math.floor(direction.y))
-            self.move_object(direction)
-class Door(furnitureUsable):
-    def __init__(self, x, y, type):
-        super().__init__(x,y,type)
-        jsonObject = globals.readFromFile("data/entityType.json", True)[type]
-        self.sprites = (jsonObject["trueSprite"], jsonObject["falseSprite"])
-    def _process(self):
-        if self.state:
-            self.blocks = True
-        else:
-            self.blocks = False
 
 
 

@@ -1,1 +1,2 @@
-{"door":{"trueSprite":20,"falseSprite":19}}
+{"door":{"trueSprite":20,"falseSprite":19},
+ "tree":{"sprite":550}}

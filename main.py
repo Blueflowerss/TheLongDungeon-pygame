@@ -109,11 +109,9 @@ def keyHandler(key):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
         if tile in ourUniverse.objectMap:
-            testingMethod = getattr(ourUniverse.objectMap[tile], "_interact", None)
-            if callable(testingMethod):
-                ourUniverse.objectMap[tile]._interact()
-            else:
-                globals.insertToActionLog("Non Interactible")
+            entity = ourUniverse.objectMap[tile]
+            if "interactible" in entity.extraData:
+                entity._interact()
         global currentControl
         _update_board(ourUniverse)
         currentControl = control.MOVE
@@ -178,11 +176,15 @@ def keyHandler(key):
         _update(globals.multiverse[globals.currentUniverse])
     def D4C():
         pos = globals.multiverse[globals.currentUniverse].actors[currentActor].pos
-        globals.multiverse[globals.currentUniverse].entities.append(classes.Door(pos[0], pos[1], "door"))
+        door = classes.Door(pos[0], pos[1])
+        globals.multiverse[globals.currentUniverse].entities.append(door)
         #global boardDistancing
         #boardDistancing += 8
     def spawnActor():
-        pass
+        pos = globals.multiverse[globals.currentUniverse].actors[currentActor].pos
+        door = classes.Tree(pos[0], pos[1])
+        #door.extraData["noSave"] = 0
+        globals.multiverse[globals.currentUniverse].entities.append(door)
         #global boardDistancing
         #boardDistancing -= 8
     def clearInput():
@@ -220,7 +222,13 @@ def _render_screen(universe):
                 else:
                     screen.blit(images[object.spriteId],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for object in universe.entities:
-        screen.blit(images[object.sprites[int(object.state)]],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
+            if "spriteOffset" in object.extraData:
+                offset = object.extraData["spriteOffset"]
+                screen.blit(images[object.sprite], (
+                    (object.pos[0] * boardDistancing + cameraOffsetX)+offset[0], (object.pos[1] * boardDistancing + cameraOffsetY)+offset[1]))
+            else:
+                screen.blit(images[object.sprite], (
+                    object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for object in universe.actors.values():
         screen.blit(images[3],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
     for action in range(0,len(globals.actionLog)):
@@ -250,10 +258,6 @@ def _update_objects(universe):
         #Process what the object does
         if globals.ifMethodExists(object,"_process"):
             object._process()
-    for object in universe.objects:
-        universe.objectMap[object.pos] = object
-        #Process what the object does
-        object._process()
 
 def _update_board(universe):
     universe.board = {}

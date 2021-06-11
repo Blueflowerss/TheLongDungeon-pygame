@@ -71,7 +71,11 @@ def quicksave(universeNumber):
                 savedUniverse["tiles"][str(universeNumber)][str(int(item.pos[0]))+" "+str(int(item.pos[1]))] = item.id
             with open("worlddata/world" + str(universeNumber) + "/entities.json", "wb") as world:
                 classes.WorldManager.unloadEntities(universeNumber)
-                pickle.dump(multiverse[universeNumber].worldEntities,world)
+                savedEntities = []
+                for entity in multiverse[universeNumber].worldEntities:
+                    if "noSave" not in entity.extraData:
+                        savedEntities.append(entity)
+                pickle.dump(savedEntities,world)
 
             with open("worlddata/world"+str(universeNumber)+"/world.json","w") as world:
                 json.dump(savedUniverse,world)
@@ -104,8 +108,9 @@ def quickload(universeNumber):
                             multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]
                     if os.path.exists("worlddata/world" + str(universeNumber) + "/entities.json"):
                         with open("worlddata/world" + str(universeNumber) + "/entities.json", "rb") as entites:
-                            tempEntity = pickle.load(entites)
-                            multiverse[universeNumber].worldEntities =  tempEntity
+                            if os.fstat(entites.fileno()).st_size > 0:
+                                tempEntity = pickle.load(entites)
+                                multiverse[universeNumber].worldEntities =  tempEntity
                     if "save" in save:
                         multiverse[universeNumber].worldType = readFromFile("./data/worldtype.json",True)[save["type"]]
     if os.path.exists("worlddata/world" + str(universeNumber) + "/actors.dat"):

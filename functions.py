@@ -75,7 +75,7 @@ def testTravel(actor,index,movement):
                                            2, movement)
     tiles = universe.gameBoards[int(actor.pos[0]/globals.chunkSize),int(actor.pos[1]/globals.chunkSize)].tiles
     if (actor.pos[0],actor.pos[1]) in tiles:
-        if tiles[actor.pos[0],actor.pos[1]].type == "wall":
+        if "blocks" in tiles[actor.pos[0],actor.pos[1]].extraData:
             globals.insertToActionLog("Path Blocked.")
             return False
         else:
