@@ -41,7 +41,7 @@ class Entity:
         self.type = type
         self.id = type
         self.extraData = {}
-class steppingEntity(Entity):
+class SteppingEntity(Entity):
     def __init__(self,x,y,type):
         super().__init__(x,y,type)
     def step(self,distance,origin):
@@ -84,12 +84,12 @@ class Actor(Entity):
                     pass
                 else:
                     empty()
-class furniture(Entity):
+class Furniture(Entity):
     def __init__(self, x, y, type):
         super().__init__(x, y, type)
         self.blocks = False
         self.sprite = 0
-class interactibleFurniture(furniture):
+class InteractibleFurniture(Furniture):
     def __init__(self, x, y, type):
         super().__init__(x, y, type)
         self.state = False
@@ -141,8 +141,8 @@ class Enemy(Actor):
             direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
             direction = (math.floor(direction.x),math.floor(direction.y))
             self.move_object(direction)
-class Door(interactibleFurniture):
-    def __init__(self, x, y):
+class Door(InteractibleFurniture):
+    def __init__(self, x, y,type=None):
         super().__init__(x,y,"door")
         jsonObject = globals.readFromFile("data/entityType.json", True)["door"]
         self.sprites = (jsonObject["trueSprite"], jsonObject["falseSprite"])
@@ -164,12 +164,6 @@ class Door(interactibleFurniture):
 
 
 
-class Tree(furniture):
-    def __init__(self,x,y):
-        super().__init__(x, y,"tree")
-        jsonObject = globals.readFromFile("data/entityType.json", True)["tree"]
-        self.sprite = jsonObject["sprite"]
-        self.extraData["blocks"] = 0
 #systems
 class Worldtile:
     def __init__(self,x,y,universe,generateStructures=False):
@@ -208,7 +202,7 @@ class Worldtile:
                                                                        yPos)
                 if (spot[0],spot[1]) in self.tiles and (spot[0],spot[1]) not in universe.alteredTerrain:
                     if "blocks" not in self.tiles[spot[0],spot[1]].extraData:
-                        tree = Tree(spot[0],spot[1])
+                        tree = globals.entityCreator("tree",pos=(spot[0],spot[1]))
                         tree.extraData["noSave"] = 0
                         tree.sprite = globals.tileHash[universe.worldType["tree"]]
                         universe.entities.append(tree)

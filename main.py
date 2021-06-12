@@ -44,6 +44,7 @@ cameraOffsetX = 0
 cameraOffsetY = 0
 currentBoard = 0
 buildType = 0
+entityType = 0
 #multiverse related stuff
 worlds.ready()
 globals.initialize()
@@ -175,24 +176,23 @@ def keyHandler(key):
         functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[currentActor], globals.currentUniverse, globals.currentUniverse-1)
         _update(globals.multiverse[globals.currentUniverse])
     def D4C():
-        pos = globals.multiverse[globals.currentUniverse].actors[currentActor].pos
-        door = classes.Door(pos[0], pos[1])
-        globals.multiverse[globals.currentUniverse].entities.append(door)
-        #global boardDistancing
-        #boardDistancing += 8
+        global entityType
+        entityType -= 1
     def spawnActor():
-        pos = globals.multiverse[globals.currentUniverse].actors[currentActor].pos
-        door = classes.Tree(pos[0], pos[1])
-        #door.extraData["noSave"] = 0
-        globals.multiverse[globals.currentUniverse].entities.append(door)
-        #global boardDistancing
-        #boardDistancing -= 8
+        global entityType
+        entityType += 1
     def clearInput():
         global text
         global guiInput
         if currentWindow in guiInput:
             guiInput[currentWindow].process(text)
             guiInput.pop(currentWindow)
+    def placeEntity():
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        pos = ourUniverse.actors[currentActor].pos
+        entity = globals.entityCreator(str(list(globals.entityDictionary)[entityType % len(globals.entityDictionary)]),pos=(pos[0],pos[1]))
+        ourUniverse.entities.append(entity)
+
         text = ""
         guiInput = {}
     def interact():
@@ -200,7 +200,8 @@ def keyHandler(key):
         currentControl = control.INTERACT
     keys = {119:up,115:down,97:left,100:right,113:q,101:e,27:escape,122:z,99:c,118:v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,120:x,106:travelBackward,107:travelForward,44:D4C,46:spawnActor,
-            13:clearInput,32:interact}
+            13:clearInput,32:interact,98:placeEntity}
+    #print(key)
     if key in keys:
         keys[key]()
     for universe in globals.multiverse.values():
@@ -217,7 +218,10 @@ def _render_screen(universe):
         cameraOffsetX, cameraOffsetY = 0,0
     for object in universe.board.values():
         if (object.pos[0],object.pos[1]-1) in universe.board and (object.pos[0],object.pos[1]+1) in universe.board and (object.pos[0]+1,object.pos[1]) in universe.board and (object.pos[0]-1,object.pos[1]) in universe.board:
-                if universe.board[object.pos[0],object.pos[1]-1].type == "wall" and universe.board[object.pos[0],object.pos[1]+1].type =="wall" and universe.board[object.pos[0]+1,object.pos[1]].type == "wall" and universe.board[object.pos[0]-1,object.pos[1]].type == "wall":
+                if "blocks" in universe.board[object.pos[0],object.pos[1]-1].extraData\
+                        and "blocks" in universe.board[object.pos[0],object.pos[1]+1].extraData\
+                        and "blocks" in universe.board[object.pos[0]+1,object.pos[1]].extraData\
+                        and "blocks" in universe.board[object.pos[0]-1,object.pos[1]].extraData:
                     pass
                 else:
                     screen.blit(images[object.spriteId],(object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY))
@@ -244,6 +248,7 @@ def _render_screen(universe):
             screen.blit(_render_text(menu.mode), (menu.pos))
             screen.blit(_render_text(text),(menu.pos[0],menu.pos[1]+20))
     screen.blit(_render_text(str(list(globals.tileDictionary)[buildType%len(globals.tileDictionary)])), (60, 50))
+    screen.blit(_render_text(str(list(globals.entityDictionary)[entityType % len(globals.entityDictionary)])), (10, 190))
     screen.blit(_render_text("earth "+str(globals.currentUniverse)), (resolution[0]/2-20, 20))
     screen.blit(_render_text(str(globals.multiverse[globals.currentUniverse].worldType["name"])), (resolution[0] / 2 - 20,40))
     screen.blit(images[globals.tileDictionary[list(globals.tileDictionary)[buildType%len(globals.tileDictionary)]]["spriteId"]],(10,50))

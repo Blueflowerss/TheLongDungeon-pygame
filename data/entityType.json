@@ -1,2 +1,6 @@
-{"door":{"trueSprite":20,"falseSprite":19},
- "tree":{"sprite":550}}
+{"door":{"trueSprite":20,"falseSprite":19,"class":"Door","name":"door"},
+ "tree":{"sprite":550,"class":"Furniture","extraData":{"blocks":0},"name":"tree"},
+ "chair": {"sprite":25,"class":"Furniture","name":"chair"},
+ "table": {"sprite":26,"class":"Furniture","name":"table"},
+ "bed": {"sprite":27,"class":"Furniture","name":"bed"}
+}

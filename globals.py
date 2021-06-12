@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 import worlds
+import sys
 multiverse = {}
 seed = 5552
 chunkSize = 16
@@ -14,6 +15,7 @@ seed = 5000
 nextActor = 0
 playerId = 0
 tileDictionary = {}
+entityDictionary = {}
 tileHash = {}
 def insertToActionLog(text):
     actionLog.append(text)
@@ -30,6 +32,8 @@ def createUniverse(index):
         worlds.prepareWorld(index)
 def ready():
     global tileDictionary
+    global entityDictionary
+    entityDictionary = json.loads(readFromFile("data/entityType.json"))
     tileDictionary = readFromFile("./data/tiles.json",jsonize=True)
     for item in tileDictionary.values():
         tileHash[item["name"]] = item["spriteId"]
@@ -50,6 +54,20 @@ def ifMethodExists(object,methodString):
         return True
     else:
         return False
+def entityCreator(classType,sprite=None,pos=(0,0)):
+
+    if classType in entityDictionary:
+        entityType = entityDictionary[classType]
+        entity = eval("classes."+entityType["class"]+"("+str(pos[0])+","+str(pos[1])+","+"\""+entityType["name"]+"\""+")")
+        if "extraData" in entityType:
+            entity.extraData = entityType["extraData"]
+        if sprite:
+            entity.sprite = sprite
+        elif "sprite" in entityType:
+            entity.sprite = entityType["sprite"]
+        return entity
+    else:
+        print("something's wrong with the entity creator")
 def quicksave(universeNumber):
     savedUniverse = {"tiles":{},"entities":{}}
     if not os.path.exists("worlddata/world"+str(universeNumber)):
