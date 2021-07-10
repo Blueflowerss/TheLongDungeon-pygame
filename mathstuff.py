@@ -2,7 +2,13 @@ import math
 import noise
 import globals
 import random
-#
+#all math stuff
+def is_number(string):
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
 def first_n_digits(num, n):
     return num // 10 ** (int(math.log(num, 10)) - n + 1)
 def generateNoise(value,x,y,min,max,seed,raw=False,octaves=3):

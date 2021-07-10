@@ -1,19 +1,32 @@
 import classes
+import imageThings
 import json
 import os
 import pickle
+import pygame
 import worlds
-import sys
+
 multiverse = {}
-seed = 5552
+
+resolution = (600,600)
 chunkSize = 16
 worldSize = 1024
+boardDistancing = 32
+
+screen = pygame.display.set_mode(resolution)
+
 currentUniverse = 0
+
 actionLog = []
 alteredUniverses = {}
 seed = 5000
 nextActor = 0
 playerId = 0
+#build stuff
+buildType = 0
+entityType = 0
+
+images = imageThings.readSprites(resolution)
 tileDictionary = {}
 entityDictionary = {}
 tileHash = {}
@@ -59,8 +72,8 @@ def entityCreator(classType,sprite=None,pos=(0,0)):
     if classType in entityDictionary:
         entityType = entityDictionary[classType]
         entity = eval("classes."+entityType["class"]+"("+str(pos[0])+","+str(pos[1])+","+"\""+entityType["name"]+"\""+")")
-        if "extraData" in entityType:
-            entity.extraData = entityType["extraData"]
+        if "flags" in entityType:
+            entity.flags= entityType["flags"]
         if sprite:
             entity.sprite = sprite
         elif "sprite" in entityType:
@@ -84,14 +97,15 @@ def quicksave(universeNumber):
         if universeNumber in multiverse:
             savedUniverse["tiles"][str(universeNumber)] = {}
             savedUniverse["type"] = multiverse[universeNumber].worldType["internalName"]
-            object = multiverse[universeNumber].alteredTerrain.values()
-            for item in object:
-                savedUniverse["tiles"][str(universeNumber)][str(int(item.pos[0]))+" "+str(int(item.pos[1]))] = item.id
+            object = multiverse[universeNumber].alteredTerrain
+            for pos in object:
+                item = object[pos]
+                savedUniverse["tiles"][str(universeNumber)][str(int(pos[0]))+" "+str(int(pos[1]))] = item.id
             with open("worlddata/world" + str(universeNumber) + "/entities.json", "wb") as world:
                 classes.WorldManager.unloadEntities(universeNumber)
                 savedEntities = []
                 for entity in multiverse[universeNumber].worldEntities:
-                    if "noSave" not in entity.extraData:
+                    if "noSave" not in entity.flags:
                         savedEntities.append(entity)
                 pickle.dump(savedEntities,world)
 
@@ -101,13 +115,14 @@ def quicksave(universeNumber):
             with open("worlddata/world"+str(universeNumber)+"/actors.dat","wb") as world:
                 #pickle.dump(multiverse[universeNumber].actors,world)
                 world.close()
-            with open("data/player.dat","wb") as playerData:
-                if currentUniverse in multiverse:
-                    if playerId in multiverse[currentUniverse].actors:
-                        Player = multiverse[currentUniverse].actors[playerId]
-                        Data = {"pos":Player.pos,"universe":Player.currentUniverse}
-                        pickle.dump(Data,playerData)
-                playerData.close()
+def savePlayer():
+    with open("data/player.dat", "wb") as playerData:
+        if currentUniverse in multiverse:
+            if playerId in multiverse[currentUniverse].actors:
+                Player = multiverse[currentUniverse].actors[playerId]
+                Data = {"pos": Player.pos, "universe": Player.currentUniverse}
+                pickle.dump(Data, playerData)
+        playerData.close()
 def quickload(universeNumber):
     savedUniverse = {"tiles":{}}
     if os.path.exists("worlddata/world"+str(universeNumber)+"/world.json"):
@@ -120,7 +135,7 @@ def quickload(universeNumber):
                         pos = object.split()
                         tile = save["tiles"][str(universeNumber)][object]
                         if universeNumber in multiverse:
-                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = classes.Tile(int(pos[0]),int(pos[1]),tile,multiverse[universeNumber])
+                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = classes.Tile(tile,multiverse[universeNumber])
                         else:
                             createUniverse(universeNumber)
                             multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]

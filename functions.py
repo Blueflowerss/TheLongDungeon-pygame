@@ -1,6 +1,7 @@
-import globals
 import classes
-import worlds
+import globals
+
+
 ## THING DOERS
 def alter_tile(tile,id):
     globals.initialize()
@@ -8,9 +9,9 @@ def alter_tile(tile,id):
     chunkBlock = (int(tile[0]/globals.chunkSize),int(tile[1]/globals.chunkSize))
     if chunkBlock in ourUniverse.gameBoards:
         if tile in ourUniverse.gameBoards[chunkBlock].tiles:
-            ourUniverse.gameBoards[chunkBlock].tiles[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
-            ourUniverse.alteredTerrain[tile] = classes.Tile(tile[0],tile[1],id,ourUniverse)
-            ourUniverse.altered = True
+            ourUniverse.gameBoards[chunkBlock].tiles[tile] = classes.Tile(id,ourUniverse)
+            ourUniverse.alteredTerrain[tile] = classes.Tile(id,ourUniverse)
+            ourUniverse.flags["altered"] = 0
         if tile in ourUniverse.objectMap:
             if ourUniverse.objectMap[tile] in ourUniverse.entities:
                 ourUniverse.entities.remove(ourUniverse.objectMap[tile])
@@ -59,7 +60,8 @@ def Step(actor,index,movement,follow):
         for board in boardsToBeDeleted:
             globals.multiverse[index].gameBoards.pop(board.pos)
         for universe in universesToBeDeleted:
-            if globals.multiverse[universe].altered or globals.multiverse[universe].actors or globals.multiverse[universe].entities:
+            if "altered" in globals.multiverse[universe].flags:
+                classes.WorldManager.unloadEntities(universe)
                 classes.WorldManager.unloadWorldTile(universe)
                 globals.quicksave(universe)
             globals.multiverse.pop(universe)
@@ -75,7 +77,7 @@ def testTravel(actor,index,movement):
                                            2, movement)
     tiles = universe.gameBoards[int(actor.pos[0]/globals.chunkSize),int(actor.pos[1]/globals.chunkSize)].tiles
     if (actor.pos[0],actor.pos[1]) in tiles:
-        if "blocks" in tiles[actor.pos[0],actor.pos[1]].extraData:
+        if "blocks" in tiles[actor.pos[0],actor.pos[1]].flags:
             globals.insertToActionLog("Path Blocked.")
             return False
         else:
