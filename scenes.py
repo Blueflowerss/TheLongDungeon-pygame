@@ -20,9 +20,10 @@ class Director:
                 elif event.type == pygame.VIDEORESIZE:
                     self.resolution = event.size
                     self.manager = pygame_gui.UIManager((self.screen.get_size()))
+                    self.scene.__init__(self.scene,self)
                 self.scene.on_event(self,event)
-            self.scene.on_draw(self,screen=self.screen)
             self.scene.on_update(self)
+            self.scene.on_draw(self,screen=self.screen)
             pygame.display.flip()
     def change_scene(self, scene):
         self.scene = scene
@@ -64,10 +65,17 @@ class playScene:
 class menuScene:
     def __init__(self,director):
         Scene.__init__(self,director)
+        director.GUI["main"] = GUI.mainMenu(director.manager)
     def on_update(self):
-        pass
+        time_delta = clock.tick(60) / 1000.0
+        self.manager.update(time_delta)
     def on_event(self,event):
-        input.keyHandler(event)
-        worlds._update(globals.multiverse[globals.currentUniverse])
+        if event.type == pygame.QUIT:
+            print("ass")
+            self.quit_flag = True
+        elif event.type == pygame.USEREVENT:
+            GUI.inputHandler(self,event)
+        self.manager.process_events(event)
     def on_draw(self,screen):
-        pass
+        screen.fill((80, 80, 80))
+        self.manager.draw_ui(self.screen)

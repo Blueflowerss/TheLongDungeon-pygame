@@ -150,3 +150,9 @@ def quickload(universeNumber):
         with open("worlddata/world" + str(universeNumber) + "/actors.dat", "rb") as f:
             #multiverse[universeNumber].actors = pickle.load(f)
             f.close()
+def save_and_quit():
+    for universe in multiverse.keys():
+        classes.WorldManager.unloadEntities(universe)
+        if "altered" in multiverse[universe].flags:
+            quicksave(universe)
+        savePlayer()

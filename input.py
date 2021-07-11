@@ -1,6 +1,6 @@
 from enum import Enum
 
-import classes
+import classes,scenes
 import functions
 import globals
 import pygame,pygame_gui,GUI
@@ -76,13 +76,7 @@ def keyHandler(scene,key):
     def middle():
         controlHandler((0,0))
     def escape():
-            for universe in globals.multiverse.keys():
-                print(universe)
-                classes.WorldManager.unloadEntities(universe)
-                if "altered" in globals.multiverse[universe].flags:
-                    globals.quicksave(universe)
-                globals.savePlayer()
-            quit()
+        scene.director.change_scene(scenes.menuScene)
     def v():
         global currentControl
         currentControl = control.DIG

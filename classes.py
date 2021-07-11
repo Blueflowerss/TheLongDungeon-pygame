@@ -176,20 +176,20 @@ class Worldtile:
         for xTile in range(0,globals.chunkSize):
              for yTile in range(0,globals.chunkSize):
                 xPos,yPos = xTile + self.pos[0] * globals.chunkSize,yTile + self.pos[1] * globals.chunkSize
-                 #if xPos > -1 and yPos > -1 and xPos < globals.worldSize and yPos < globals.worldSize:
-                if (xPos,yPos) in universe.alteredTerrain:
-                    self.tiles[xPos,yPos] = universe.alteredTerrain[xPos,yPos]
-                elif (xPos,yPos) in universe.loadedTerrain:
-                    self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
-                elif mathstuff.is_number(universe.index):
-                    perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
-                    if perlinTile == 1 and universe.worldType["mountains"]:
-                        tile = Tile(globals.tileHash[universe.worldType["ground"]],universe)
-                        tile.flags["blocks"] = 0
-                        self.tiles[(xPos,yPos)] = tile
-                    else:
-                        tile = Tile(globals.tileHash[universe.worldType["grass"]],universe)
-                        self.tiles[(xPos,yPos)] = tile
+                if xPos > -1 and yPos > -1:
+                    if (xPos,yPos) in universe.alteredTerrain:
+                        self.tiles[xPos,yPos] = universe.alteredTerrain[xPos,yPos]
+                    elif (xPos,yPos) in universe.loadedTerrain:
+                        self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
+                    elif mathstuff.is_number(universe.index):
+                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
+                        if perlinTile == 1 and universe.worldType["mountains"]:
+                            tile = Tile(globals.tileHash[universe.worldType["ground"]],universe)
+                            tile.flags["blocks"] = 0
+                            self.tiles[(xPos,yPos)] = tile
+                        else:
+                            tile = Tile(globals.tileHash[universe.worldType["grass"]],universe)
+                            self.tiles[(xPos,yPos)] = tile
         toBeDeleted = []
         for entity in universe.worldEntities:
             if entity.pos[0] in range(originX,originX+globals.chunkSize) and entity.pos[1] in range(originY,originY+globals.chunkSize):
