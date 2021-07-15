@@ -45,8 +45,8 @@ def Step(actor,index,movement,follow):
     universesToBeDeleted = []
     for object in globals.multiverse[index].gameBoards.values():
         if object.pos not in globals.multiverse[movement].gameBoards:
-            globals.multiverse[movement].gameBoards[object.pos] = classes.Worldtile(object.pos[0], object.pos[1],
-                                                                                globals.multiverse[movement], True)
+            globals.multiverse[movement].gameBoards[object.pos] = classes.Worldtile(globals.multiverse[movement],(object.pos[0],object.pos[1]),
+                                                                                 True)
     if follow:
         globals.currentUniverse = movement
         globals.multiverse[movement].actors[actor.id] = actor

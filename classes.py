@@ -17,14 +17,25 @@ class Universe:
     def __init__(self,index,type=None):
         self.index = index
         self.objects = []
+        #players
         self.actors = {}
+        #map
         self.board = {}
+        #doors,furniture..
         self.entities = []
+        #self.entities, but unloaded
         self.worldEntities = []
+        #collision map
         self.objectMap = {}
+        #chunks
         self.gameBoards = {}
+        #"biome" map
+        self.featureMap = {}
+        #terrain created on the spot
         self.loadedTerrain = {}
+        #terrain altered by the player
         self.alteredTerrain = {}
+        #flags
         self.flags = {}
         if type == None:
             if mathstuff.is_number(self.index):
@@ -168,11 +179,12 @@ class Door(InteractibleFurniture):
 
 #systems
 class Worldtile:
-    def __init__(self,x,y,universe,generateStructures=False):
-        self.pos = (x,y)
+    def __init__(self,universe,pos=(0,0),generateStructures=False,biome="flat"):
+        self.pos = pos
         self.tiles = {}
         self.entities = []
-        originX,originY = 0 + self.pos[0] * globals.chunkSize, 0 + self.pos[1] * globals.chunkSize
+        self.biome = None
+        originX,originY = self.pos[0] * globals.chunkSize, self.pos[1] * globals.chunkSize
         for xTile in range(0,globals.chunkSize):
              for yTile in range(0,globals.chunkSize):
                 xPos,yPos = xTile + self.pos[0] * globals.chunkSize,yTile + self.pos[1] * globals.chunkSize
@@ -181,7 +193,7 @@ class Worldtile:
                         self.tiles[xPos,yPos] = universe.alteredTerrain[xPos,yPos]
                     elif (xPos,yPos) in universe.loadedTerrain:
                         self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
-                    elif mathstuff.is_number(universe.index):
+                    else:
                         perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
                         if perlinTile == 1 and universe.worldType["mountains"]:
                             tile = Tile(globals.tileHash[universe.worldType["ground"]],universe)
@@ -209,6 +221,9 @@ class Worldtile:
                         tree.sprite = globals.tileHash[universe.worldType["tree"]]
                         universe.entities.append(tree)
                         #self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
+class biomeTile:
+    def __init__(self,universe,biome=None,pos=(0,0)):
+        self.pos = pos
 
 class WorldManager:
     def loadWorldTile(x,y,renderDistance,universe):
@@ -219,8 +234,8 @@ class WorldManager:
                 if (chunkMove[0] + number, chunkMove[1] + number1) in ourUniverse.gameBoards:
                     pass
                 else:
-                    ourUniverse.gameBoards[chunkMove[0] + number, chunkMove[1] + number1] = Worldtile(
-                        chunkMove[0] + number, chunkMove[1] + number1,ourUniverse,True)
+                    ourUniverse.gameBoards[chunkMove[0] + number, chunkMove[1] + number1] = Worldtile(ourUniverse,
+                            (chunkMove[0] + number, chunkMove[1] + number1),True)
     def unloadWorldTile(universe,renderDistance=0,centerOfDeletion=(0,0)):
         ourUniverse = globals.multiverse[universe]
         toBeDeleted = []

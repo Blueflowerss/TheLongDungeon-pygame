@@ -2,7 +2,7 @@
 "mountains":true,"buildings":false,"treeGen":true,
 "chance":1000,"treeAmount":10
 },
-"autumn":{"name":"Red Leaves","internalName":"autumn","ground":"redStoneWall","grass":"redgrass","tree":"redTree","terrain":"plains",
+"autumn":{"name":"Bloody woods","internalName":"autumn","ground":"redStoneWall","grass":"redgrass","tree":"redTree","terrain":"plains",
 "mountains":true,"buildings":false,"treeGen":true,
 "chance":100,"treeAmount":32
 },

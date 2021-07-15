@@ -24,7 +24,7 @@ worlds.ready()
 globals.initialize()
 globals.ready()
 director = scenes.Director()
-director.change_scene(scenes.playScene)
+director.change_scene(scenes.menuScene)
 
 ourUniverse = globals.multiverse[globals.currentUniverse]
 #actor related stuff
