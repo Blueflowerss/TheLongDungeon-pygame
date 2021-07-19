@@ -67,6 +67,8 @@ class Actor(Entity):
         super().__init__(x, y, type)
         self.important = True
         self.type = "actor"
+        self.flags["blocks"] = 0
+        self.alive = True
         self.spriteId = 3
         self.id = id
         self.tempchunkPos = (int(self.pos[0]/16),int(self.pos[1]/16))
@@ -83,22 +85,19 @@ class Actor(Entity):
             curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
             move = tuple(map(sum, zip(object.pos, amount)))
             chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
-            def actor():
-                pass
-            def wall():
-                pass
             def empty():
                 object.pos = pos
-            if (pos) in ourUniverse.objectMap:
-                target = ourUniverse.objectMap[pos]
-                if "blocks" in target.flags:
-                    pass
-                else:
-                    empty()
-            elif (pos) in ourUniverse.board:
+
+            if (pos) in ourUniverse.board:
                 target = ourUniverse.board[pos]
                 if "blocks" in ourUniverse.board[pos].flags:
                     pass
+                elif (pos) in ourUniverse.objectMap:
+                    target = ourUniverse.objectMap[pos]
+                    if "blocks" in target.flags:
+                        pass
+                    else:
+                        empty()
                 else:
                     empty()
 class Furniture(Entity):
@@ -134,26 +133,27 @@ class Player(Actor):
                 WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
                 WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
                 self.tempchunkPos = chunkPos
-class Enemy(Actor):
-    def __init__(self,x,y,id,universe):
-        super().__init__(self,x,y,id,universe)
-        self.type = "enemy"
+class NPC(Actor):
+    def __init__(self,x,y,id):
+        super().__init__(x,y,id,universe=globals.currentUniverse)
+        self.type = "actor"
         self.spriteId = 3
         self.pos = (x,y)
-        self.id = id
         self.actionPointsMax = 5
         self.actionPointsRegen = 1
         self.HP = 10
         self.maxHP = 10
         self.currentUniverse = 0
     def _process(self):
-        globals.initialize()
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        if 0 > 3:
-            target = ourUniverse.actors[0]
-            direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
-            direction = (math.floor(direction.x),math.floor(direction.y))
-            self.move_object(direction)
+        if True:
+            print("ass")
+            target = ourUniverse.actors[globals.playerId]
+            distance = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos)))
+            if distance != (0,0):
+                direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
+                direction = (math.floor(direction.x),math.floor(direction.y))
+                self.move_object(direction)
 class Door(InteractibleFurniture):
     def __init__(self, x, y,type=None):
         super().__init__(x,y,"door")

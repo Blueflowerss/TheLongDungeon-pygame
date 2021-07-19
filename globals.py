@@ -108,12 +108,11 @@ def quicksave(universeNumber):
                     if "noSave" not in entity.flags:
                         savedEntities.append(entity)
                 pickle.dump(savedEntities,world)
-
             with open("worlddata/world"+str(universeNumber)+"/world.json","w") as world:
                 json.dump(savedUniverse,world)
                 world.close()
             with open("worlddata/world"+str(universeNumber)+"/actors.dat","wb") as world:
-                #pickle.dump(multiverse[universeNumber].actors,world)
+                pickle.dump(multiverse[universeNumber].actors,world)
                 world.close()
 def savePlayer():
     with open("data/player.dat", "wb") as playerData:
@@ -148,7 +147,10 @@ def quickload(universeNumber):
                         multiverse[universeNumber].worldType = readFromFile("./data/worldtype.json",True)[save["type"]]
     if os.path.exists("worlddata/world" + str(universeNumber) + "/actors.dat"):
         with open("worlddata/world" + str(universeNumber) + "/actors.dat", "rb") as f:
-            #multiverse[universeNumber].actors = pickle.load(f)
+            global nextActor
+            actors = pickle.load(f)
+            nextActor += len(actors)
+            multiverse[universeNumber].actors = actors
             f.close()
 def save_and_quit():
     for universe in multiverse.keys():

@@ -50,5 +50,6 @@ if os.path.exists("data/player.dat"):
             globals.nextActor += 1
 else:
     ourUniverse.actors[globals.playerId] = classes.Actor(50, 50, 0, 0)
+    globals.nextActor += 1
 globals.insertToActionLog("For controls check Readme!")
 director.loop()

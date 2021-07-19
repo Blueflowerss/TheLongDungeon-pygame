@@ -92,14 +92,18 @@ def _render_screen(screen,universe):
 
 def _update_objects(universe):
     universe.objectMap = {}
+    aliveActors = []
     for actor in universe.actors.values():
         universe.objectMap[actor.pos] = actor
-        actor._process()
+        if actor.alive:
+            aliveActors.append(actor)
     for object in universe.entities:
         universe.objectMap[object.pos] = object
         # Process what the object does
         if globals.ifMethodExists(object, "_process"):
             object._process()
+    for actor in aliveActors:
+        actor._process()
 
 def _update_board(universe):
     universe.board = {}
