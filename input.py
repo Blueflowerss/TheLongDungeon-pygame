@@ -81,7 +81,6 @@ def keyHandler(scene,key):
         global currentControl
         currentControl = control.DIG
     def q():
-        global buildType
         globals.buildType -= 1
     def e():
         globals.buildType += 1
@@ -113,16 +112,17 @@ def keyHandler(scene,key):
         global currentControl
         currentControl = control.INTERACT
     def spawnNPC():
-        globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
-        globals.nextActor += 1
+        #globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
+        #globals.nextActor += 1
+        pass
     keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,"x":x,"j":travelBackward,"k":travelForward,44:D4C,46:spawnActor,
             13:clearInput,32:interact,98:placeEntity,103:yetAnotherDebugButton,"i":spawnNPC}
-    if key.type == pygame.KEYDOWN:
+    if key.type == pygame.KEYDOWN and not globals.keyLocked:
         if key.unicode in keys:
             keys[key.unicode]()
         elif key.key in keys:
             keys[key.key]()
     elif key.type == pygame.QUIT:
-        print("ass")
+        pass
     worlds._update(globals.multiverse[globals.currentUniverse])

@@ -71,7 +71,6 @@ class menuScene:
         self.manager.update(time_delta)
     def on_event(self,event):
         if event.type == pygame.QUIT:
-            print("ass")
             self.quit_flag = True
         elif event.type == pygame.USEREVENT:
             GUI.inputHandler(self,event)

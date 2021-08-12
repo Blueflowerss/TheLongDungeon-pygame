@@ -7,7 +7,7 @@ import pygame
 import functions
 import globals
 import mathstuff
-import worlds,pygame_gui
+import worlds,pygame_gui,GUI,scenes
 
 clock = pygame.time.Clock()
 
@@ -103,12 +103,12 @@ class Actor(Entity):
 class Furniture(Entity):
     def __init__(self, x, y, type):
         super().__init__(x, y, type)
-        self.blocks = False
         self.sprite = 0
 class InteractibleFurniture(Furniture):
     def __init__(self, x, y, type):
         super().__init__(x, y, type)
-        self.state = False
+    def _interact(self):
+        print("no interaction defined.")
 class Tile():
     def __init__(self,id,universe):
         self.flags = {}
@@ -147,7 +147,6 @@ class NPC(Actor):
     def _process(self):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         if True:
-            print("ass")
             target = ourUniverse.actors[globals.playerId]
             distance = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos)))
             if distance != (0,0):
@@ -161,6 +160,7 @@ class Door(InteractibleFurniture):
         self.sprites = (jsonObject["trueSprite"], jsonObject["falseSprite"])
         self.flags["interactible"] = 0
         self.sprite = 0
+        self.state = False
         if self.state:
             self.flags["blocks"] = 0
             self.sprite = self.sprites[0]
@@ -174,7 +174,15 @@ class Door(InteractibleFurniture):
         else:
             self.sprite = self.sprites[1]
             self.flags["blocks"] = 0
-
+class Sign(InteractibleFurniture):
+    def __init__(self, x, y,type=None):
+        super().__init__(x,y,"sign")
+        jsonObject = globals.readFromFile("data/entityType.json", True)["sign"]
+        self.flags = jsonObject["flags"]
+        self.text = ""
+        self.sprite = jsonObject["sprite"]
+    def _interact(self):
+        globals.director.GUI["signMenu"] = GUI.signMenu(globals.director.manager,self)
 
 
 #systems

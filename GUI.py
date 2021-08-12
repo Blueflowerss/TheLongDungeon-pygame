@@ -1,6 +1,8 @@
 import pygame,pygame_gui,globals,functions,worlds,mathstuff,scenes
 def inputHandler(director,userEvent):
+    #print(userEvent)
     if userEvent.user_type == pygame_gui.UI_BUTTON_PRESSED:
+        globals.keyLocked = False
         if userEvent.ui_object_id == "#teleportMenu.#Confirm":
             if mathstuff.is_number(director.GUI["teleport"].X.get_text()) and mathstuff.is_number(director.GUI["teleport"].Y.get_text()) \
                     and mathstuff.is_number(director.GUI["teleport"].stepWorld.get_text()):
@@ -12,16 +14,23 @@ def inputHandler(director,userEvent):
                     functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[globals.playerId],
                                             globals.currentUniverse, step,True)
                     worlds._update(globals.multiverse[step])
+        elif userEvent.ui_object_id == "#signMenu.#Confirm":
+            globals.keyLocked = False
+            menu = director.GUI["signMenu"]
+            menu.entity.text = menu.textEntry.text
         elif userEvent.ui_object_id == "#mainMenu.#start":
             director.manager.clear_and_reset()
             director.change_scene(scenes.playScene)
         elif userEvent.ui_object_id == "#mainMenu.#quit":
             globals.save_and_quit()
             director.quit_flag = True
-
+    elif userEvent.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
+        globals.keyLocked = True
+    elif userEvent.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+        globals.keyLocked = False
 class teleportMenu:
     def __init__(self,manager):
-        self.container = pygame_gui.elements.UIWindow(pygame.Rect(50, 50, 250, 250), manager,"Be teleport Anywhere!",object_id="#teleportMenu")
+        self.container = pygame_gui.elements.UIWindow(pygame.Rect(50, 50, 250, 250), manager,"Become anywhere!",object_id="#teleportMenu")
         self.X = pygame_gui.elements.UITextEntryLine(pygame.Rect(0,35,55,30), manager, container=self.container,object_id="#Xinput")
         self.X.set_allowed_characters("numbers")
         self.Y = pygame_gui.elements.UITextEntryLine(pygame.Rect(55,35, 55, 30), manager, container=self.container,object_id="#Yinput")
@@ -34,6 +43,13 @@ class teleportMenu:
             self.Y.set_text(str(universe.actors[globals.playerId].pos[1]))
             self.stepWorld.set_text(str(globals.currentUniverse))
         self.Confirm = pygame_gui.elements.UIButton(pygame.Rect(25,60,60,30),"Confirm",manager,container=self.container,object_id="#Confirm")
+class signMenu:
+    def __init__(self,manager,entity):
+        self.entity = entity
+        self.container = pygame_gui.elements.UIWindow(pygame.Rect(50,50,500,120 ), manager,"Sign",object_id="#signMenu")
+        self.textEntry = pygame_gui.elements.UITextEntryLine(pygame.Rect(0,0,460,30), manager, container=self.container,object_id="#input")
+        self.textEntry.set_text(entity.text)
+        self.Confirm = pygame_gui.elements.UIButton(pygame.Rect(220,30,60,30),"Write",manager,container=self.container,object_id="#Confirm")
 class mainMenu:
     def __init__(self,manager):
         self.container = pygame_gui.elements.UIWindow(pygame.Rect(50, 50, 250, 250), manager, "This is the main menu, stop laughing.",

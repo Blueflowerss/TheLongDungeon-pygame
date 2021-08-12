@@ -25,7 +25,7 @@ globals.initialize()
 globals.ready()
 director = scenes.Director()
 director.change_scene(scenes.menuScene)
-
+globals.director = director
 ourUniverse = globals.multiverse[globals.currentUniverse]
 #actor related stuff
 currentActor = 0
@@ -51,5 +51,8 @@ if os.path.exists("data/player.dat"):
 else:
     ourUniverse.actors[globals.playerId] = classes.Actor(50, 50, 0, 0)
     globals.nextActor += 1
-globals.insertToActionLog("For controls check Readme!")
+if globals.readFromFile("data/splashtext.txt") != "":
+    globals.insertToActionLog(globals.readFromFile("data/splashtext.txt"))
+else:
+    globals.insertToActionLog("For controls check Readme!")
 director.loop()

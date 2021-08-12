@@ -7,7 +7,8 @@ import pygame
 import worlds
 
 multiverse = {}
-
+director = None
+keyLocked = False
 resolution = (600,600)
 chunkSize = 16
 worldSize = 1024
@@ -51,7 +52,7 @@ def ready():
     for item in tileDictionary.values():
         tileHash[item["name"]] = item["spriteId"]
     createUniverse(currentUniverse)
-def readFromFile(filePath,jsonize=False):
+def readFromFile(filePath,jsonize=False,raiseException=True):
     if os.path.exists(filePath):
         with open(filePath,"r") as f:
             if jsonize:
@@ -59,8 +60,10 @@ def readFromFile(filePath,jsonize=False):
             else:
                 return f.read()
             f.close()
-    else:
+    elif raiseException:
         raise Exception("ReadFromFile: file path invalid.")
+    else:
+        return ""
 def ifMethodExists(object,methodString):
     testingMethod = getattr(object, methodString, None)
     if callable(testingMethod):
@@ -104,6 +107,8 @@ def quicksave(universeNumber):
             with open("worlddata/world" + str(universeNumber) + "/entities.json", "wb") as world:
                 classes.WorldManager.unloadEntities(universeNumber)
                 savedEntities = []
+                print(multiverse[universeNumber].worldEntities)
+
                 for entity in multiverse[universeNumber].worldEntities:
                     if "noSave" not in entity.flags:
                         savedEntities.append(entity)
@@ -141,8 +146,12 @@ def quickload(universeNumber):
                     if os.path.exists("worlddata/world" + str(universeNumber) + "/entities.json"):
                         with open("worlddata/world" + str(universeNumber) + "/entities.json", "rb") as entites:
                             if os.fstat(entites.fileno()).st_size > 0:
-                                tempEntity = pickle.load(entites)
-                                multiverse[universeNumber].worldEntities =  tempEntity
+                                try:
+                                    tempEntity = pickle.load(entites)
+                                    multiverse[universeNumber].worldEntities =  tempEntity
+                                except AttributeError:
+                                    print("Some entity class is missing, couldn't load entities.")
+
                     if "save" in save:
                         multiverse[universeNumber].worldType = readFromFile("./data/worldtype.json",True)[save["type"]]
     if os.path.exists("worlddata/world" + str(universeNumber) + "/actors.dat"):
