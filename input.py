@@ -92,11 +92,9 @@ def keyHandler(scene,key):
         global currentControl
         currentControl = control.BUILD
     def travelForward():
-        functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[currentActor],globals.currentUniverse,globals.currentUniverse+1)
-        worlds._update(globals.multiverse[globals.currentUniverse])
+        functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[globals.playerId],globals.currentUniverse,globals.currentUniverse+1)
     def travelBackward():
-        functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[currentActor], globals.currentUniverse, globals.currentUniverse-1)
-        worlds._update(globals.multiverse[globals.currentUniverse])
+        functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[globals.playerId], globals.currentUniverse, globals.currentUniverse-1)
     def D4C():
         globals.entityType -= 1
     def spawnActor():
@@ -112,8 +110,8 @@ def keyHandler(scene,key):
         global currentControl
         currentControl = control.INTERACT
     def spawnNPC():
-        #globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
-        #globals.nextActor += 1
+        globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
+        globals.nextActor += 1
         pass
     keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,"x":x,"j":travelBackward,"k":travelForward,44:D4C,46:spawnActor,
@@ -125,4 +123,4 @@ def keyHandler(scene,key):
             keys[key.key]()
     elif key.type == pygame.QUIT:
         pass
-    worlds._update(globals.multiverse[globals.currentUniverse])
+    worlds._update()

@@ -163,7 +163,6 @@ def quickload(universeNumber):
             f.close()
 def save_and_quit():
     for universe in multiverse.keys():
-        classes.WorldManager.unloadEntities(universe)
         if "altered" in multiverse[universe].flags:
             quicksave(universe)
         savePlayer()

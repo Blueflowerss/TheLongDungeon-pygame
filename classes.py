@@ -4,7 +4,7 @@ from operator import sub
 
 import pygame
 
-import functions
+import functions,AIBehaviours
 import globals
 import mathstuff
 import worlds,pygame_gui,GUI,scenes
@@ -25,6 +25,7 @@ class Universe:
         self.entities = []
         #self.entities, but unloaded
         self.worldEntities = []
+        self.worldActors = {}
         #collision map
         self.objectMap = {}
         #chunks
@@ -144,15 +145,41 @@ class NPC(Actor):
         self.HP = 10
         self.maxHP = 10
         self.currentUniverse = 0
+        self.thinkCounter = 5
+        self.currentBehaviour = AIBehaviours.behaviour.WANDER
     def _process(self):
+        self.thinkCounter -= 1
+        if self.thinkCounter <= 0:
+            self.thinkCounter = 5
+        AIBehaviours.ParseBehaviour(self,self.currentBehaviour)
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        if True:
-            target = ourUniverse.actors[globals.playerId]
-            distance = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos)))
-            if distance != (0,0):
-                direction = pygame.math.Vector2(tuple(map(sub,target.pos,self.pos))).normalize()
-                direction = (math.floor(direction.x),math.floor(direction.y))
-                self.move_object(direction)
+
+
+    def move_object(object, amount):
+        globals.initialize()
+        ourUniverse = globals.multiverse[globals.currentUniverse]
+        if (object.pos[0] + amount[0], object.pos[1] + amount[1]) in ourUniverse.board:
+            pos = tuple(map(sum, zip(object.pos, amount)))
+            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
+            move = tuple(map(sum, zip(object.pos, amount)))
+            chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
+            def empty():
+                object.pos = pos
+
+            if (pos) in ourUniverse.board:
+                target = ourUniverse.board[pos]
+                if "blocks" in ourUniverse.board[pos].flags:
+                    pass
+                elif (pos) in ourUniverse.objectMap:
+                    target = ourUniverse.objectMap[pos]
+                    if "blocks" in target.flags:
+                        pass
+                    else:
+                        empty()
+                else:
+                    empty()
+        else:
+            print("outside")
 class Door(InteractibleFurniture):
     def __init__(self, x, y,type=None):
         super().__init__(x,y,"door")
@@ -217,6 +244,13 @@ class Worldtile:
                 universe.entities.append(entity)
         for entity in toBeDeleted:
             universe.worldEntities.remove(entity)
+        actorsToBeDeleted = []
+        for actor in universe.worldActors:
+            if actor.pos[0] in range(originX,originX+globals.chunkSize) and actor.pos[1] in range(originY,originY+globals.chunkSize):
+                actorsToBeDeleted.append(actor)
+                universe.actors.append(actor)
+        for actor in actorsToBeDeleted:
+            universe.worldActors.pop(actor)
         if universe.worldType["treeGen"]:
             for number in range(2,universe.worldType["treeAmount"]):
                 random.seed(universe.index*xPos*yPos*number)

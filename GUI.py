@@ -13,7 +13,6 @@ def inputHandler(director,userEvent):
                 if step != globals.currentUniverse:
                     functions.attemptTravel(globals.multiverse[globals.currentUniverse].actors[globals.playerId],
                                             globals.currentUniverse, step,True)
-                    worlds._update(globals.multiverse[step])
         elif userEvent.ui_object_id == "#signMenu.#Confirm":
             globals.keyLocked = False
             menu = director.GUI["signMenu"]

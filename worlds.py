@@ -111,11 +111,13 @@ def _update_board(universe):
         for tile in board.tiles:
             universe.board[tile] = board.tiles[tile]
 
-def _update(universe):
-    # process actors and objects
-    _update_objects(universe)
-    # process changes on the board
-    _update_board(universe)
-    # render this mess
-    #if globals.playerId in universe.actors:
-        #_render_screen(globals.screen,universe)
+def _update():
+    for universe in globals.multiverse:
+        universe = globals.multiverse[universe]
+        # process actors and objects
+        _update_objects(universe)
+        # process changes on the board
+        _update_board(universe)
+        # render this mess
+        #if globals.playerId in universe.actors:
+            #_render_screen(globals.screen,universe)
