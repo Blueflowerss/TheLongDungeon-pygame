@@ -78,16 +78,16 @@ class Actor(Entity):
         self.HP = 10
         self.maxHP = 10
         self.currentUniverse = universe
-    def move_object(object, amount):
+    def move_object(self, amount):
         globals.initialize()
-        ourUniverse = globals.multiverse[globals.currentUniverse]
-        if (object.pos[0] + amount[0], object.pos[1] + amount[1]) in ourUniverse.board:
-            pos = tuple(map(sum, zip(object.pos, amount)))
-            curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]
-            move = tuple(map(sum, zip(object.pos, amount)))
+        ourUniverse = globals.multiverse[self.currentUniverse]
+        if (self.pos[0] + amount[0], self.pos[1] + amount[1]) in ourUniverse.board:
+            pos = tuple(map(sum, zip(self.pos, amount)))
+            curBoard = ourUniverse.board[tuple(map(sum, zip(self.pos, amount)))]
+            move = tuple(map(sum, zip(self.pos, amount)))
             chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
             def empty():
-                object.pos = pos
+                self.pos = pos
 
             if (pos) in ourUniverse.board:
                 target = ourUniverse.board[pos]
@@ -144,7 +144,6 @@ class NPC(Actor):
         self.actionPointsRegen = 1
         self.HP = 10
         self.maxHP = 10
-        self.currentUniverse = 0
         self.thinkCounter = 5
         self.currentBehaviour = AIBehaviours.behaviour.WANDER
     def _process(self):
@@ -152,12 +151,11 @@ class NPC(Actor):
         if self.thinkCounter <= 0:
             self.thinkCounter = 5
         AIBehaviours.ParseBehaviour(self,self.currentBehaviour)
-        ourUniverse = globals.multiverse[globals.currentUniverse]
 
 
     def move_object(object, amount):
         globals.initialize()
-        ourUniverse = globals.multiverse[globals.currentUniverse]
+        ourUniverse = globals.multiverse[object.currentUniverse]
         if (object.pos[0] + amount[0], object.pos[1] + amount[1]) in ourUniverse.board:
             pos = tuple(map(sum, zip(object.pos, amount)))
             curBoard = ourUniverse.board[tuple(map(sum, zip(object.pos, amount)))]

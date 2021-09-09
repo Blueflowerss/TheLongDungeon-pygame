@@ -107,7 +107,6 @@ def quicksave(universeNumber):
             with open("worlddata/world" + str(universeNumber) + "/entities.json", "wb") as world:
                 classes.WorldManager.unloadEntities(universeNumber)
                 savedEntities = []
-                print(multiverse[universeNumber].worldEntities)
 
                 for entity in multiverse[universeNumber].worldEntities:
                     if "noSave" not in entity.flags:

@@ -8,7 +8,6 @@ def readSprites(resolution):
     images ={}
     imagekeys = []
     dirPath = "sprites"
-    print("Another hello from Bohemian.")
     for file in sorted(os.listdir(dirPath)):
         if file.endswith("_A"):
             tempImages["images_alpha"][int(file[:4])] = (pygame.image.load(os.path.join("sprites",file)))

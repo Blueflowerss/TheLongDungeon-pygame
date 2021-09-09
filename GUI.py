@@ -53,7 +53,6 @@ class mainMenu:
     def __init__(self,manager):
         self.container = pygame_gui.elements.UIWindow(pygame.Rect(50, 50, 250, 250), manager, "This is the main menu, stop laughing.",
                                                       object_id="#mainMenu")
-        print(self.container.rect)
         self.start = pygame_gui.elements.UIButton(pygame.Rect(self.container.rect[2]/3,self.container.rect[3]/3,60,30),
                                                   "Start",manager,container=self.container,object_id="#start",)
         self.quit = pygame_gui.elements.UIButton(pygame.Rect(self.container.rect[2]/3,(self.container.rect[3]/3)+30, 60, 30), "Exit", manager,

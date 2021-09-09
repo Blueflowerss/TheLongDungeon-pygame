@@ -118,6 +118,3 @@ def _update():
         _update_objects(universe)
         # process changes on the board
         _update_board(universe)
-        # render this mess
-        #if globals.playerId in universe.actors:
-            #_render_screen(globals.screen,universe)

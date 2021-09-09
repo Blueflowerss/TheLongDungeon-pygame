@@ -33,6 +33,7 @@ currentActor = 0
 text = ""
 guiInput = {}
 currentWindow = ""
+print("Another hello from Zeya.")
 if os.path.exists("data/player.dat"):
     if os.stat("data/player.dat").st_size > 0:
         with open("data/player.dat", "rb") as f:
