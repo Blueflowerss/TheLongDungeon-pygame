@@ -18,14 +18,14 @@ currentActor = globals.playerId
 def keyHandler(scene,key):
     def DIG(direction):
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
+        tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         functions.alter_tile(tile,globals.tileHash[str(globals.multiverse[globals.currentUniverse].worldType["grass"])])
         global currentControl
         worlds._update_board(ourUniverse)
         currentControl = control.MOVE
     def BUILD(direction):
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
+        tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         tiles = list(globals.tileDictionary)
         functions.alter_tile(tile,tiles[globals.buildType%len(globals.tileDictionary)])
         global currentControl
@@ -41,10 +41,10 @@ def keyHandler(scene,key):
         worlds._update_board(ourUniverse)
         currentControl = control.MOVE
     def MOVE(direction):
-        globals.multiverse[globals.currentUniverse].actors[currentActor].move_object(direction)
+        globals.multiverse[globals.currentUniverse].actors[globals.playerId].move_object(direction)
     def INTERACT(direction):
         ourUniverse = globals.multiverse[globals.currentUniverse]
-        tile = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
+        tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         if tile in ourUniverse.objectMap:
             entity = ourUniverse.objectMap[tile]
             if "interactible" in entity.flags:
@@ -112,6 +112,7 @@ def keyHandler(scene,key):
     def spawnNPC():
         globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
         globals.nextActor += 1
+        globals.multiverse[globals.currentUniverse].flags["altered"] = 0
         pass
     keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,"x":x,"j":travelBackward,"k":travelForward,44:D4C,46:spawnActor,

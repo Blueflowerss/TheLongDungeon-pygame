@@ -140,6 +140,7 @@ class NPC(Actor):
         self.type = "actor"
         self.spriteId = 3
         self.pos = (x,y)
+        self.data = {}
         self.actionPointsMax = 5
         self.actionPointsRegen = 1
         self.HP = 10
@@ -177,7 +178,7 @@ class NPC(Actor):
                 else:
                     empty()
         else:
-            print("outside")
+            pass
 class Door(InteractibleFurniture):
     def __init__(self, x, y,type=None):
         super().__init__(x,y,"door")
@@ -243,10 +244,11 @@ class Worldtile:
         for entity in toBeDeleted:
             universe.worldEntities.remove(entity)
         actorsToBeDeleted = []
-        for actor in universe.worldActors:
+        for actorID in universe.worldActors:
+            actor = universe.worldActors[actorID]
             if actor.pos[0] in range(originX,originX+globals.chunkSize) and actor.pos[1] in range(originY,originY+globals.chunkSize):
-                actorsToBeDeleted.append(actor)
-                universe.actors.append(actor)
+                actorsToBeDeleted.append(actorID)
+                universe.actors[actorID] = (actor)
         for actor in actorsToBeDeleted:
             universe.worldActors.pop(actor)
         if universe.worldType["treeGen"]:
@@ -302,6 +304,14 @@ class WorldManager:
             hitlist.append(entity)
         for entity in hitlist:
             ourUniverse.entities.remove(entity)
+    def unloadActors(universe):
+        ourUniverse = globals.multiverse[universe]
+        actorsHitList = []
+        for actor in ourUniverse.actors:
+            ourUniverse.worldActors[actor] = ourUniverse.actors[actor]
+            actorsHitList.append(actor)
+        for actorID in actorsHitList:
+            ourUniverse.actors.pop(actorID)
 class WorldGen:
     def _generate_building(mode,X,Y,width,height,universe):
         def room():
