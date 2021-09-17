@@ -4,6 +4,8 @@ Rewrite of The Long Dungeon to Pygame.
 
       Roguelike dungeon crawler where instead of up/down, you step sideways into parallel worlds.
     
+The cool fresh code is usually in dev.
+
 
 Some directives:
 
