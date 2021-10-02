@@ -70,6 +70,7 @@ class Actor(Entity):
         self.type = "actor"
         self.flags["blocks"] = 0
         self.alive = True
+        self.inventory = []
         self.spriteId = 3
         self.id = id
         self.tempchunkPos = (int(self.pos[0]/16),int(self.pos[1]/16))

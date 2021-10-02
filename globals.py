@@ -121,7 +121,6 @@ def quicksave(universeNumber):
                 for actor in multiverse[universeNumber].worldActors:
                     if "noSave" not in multiverse[universeNumber].worldActors[actor].flags:
                         savedActors[actor] = multiverse[universeNumber].worldActors[actor]
-                print(savedActors)
                 pickle.dump(savedActors,actorFile)
                 actorFile.close()
 def savePlayer():
@@ -163,7 +162,6 @@ def quickload(universeNumber):
                         with open("worlddata/world" + str(universeNumber) + "/actors.dat", "rb") as f:
                             global nextActor
                             actors = pickle.load(f)
-                            print(actors)
                             nextActor += len(actors)
                             multiverse[universeNumber].worldActors = actors
                             f.close()

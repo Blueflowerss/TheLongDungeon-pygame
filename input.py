@@ -4,7 +4,7 @@ import classes,scenes
 import functions
 import globals
 import pygame,pygame_gui,GUI
-import worlds
+import worlds,classFactory
 
 
 class control(Enum):
@@ -100,7 +100,10 @@ def keyHandler(scene,key):
     def spawnActor():
         globals.entityType += 1
     def clearInput():
-        pass
+        item = classFactory.getItem("stepbox")
+        item.pos = (20,20)
+        print(item)
+        globals.multiverse[globals.currentUniverse].entities.append(item)
     def placeEntity():
         global currentControl
         currentControl = control.BUILDENTITY
@@ -114,8 +117,10 @@ def keyHandler(scene,key):
         globals.nextActor += 1
         globals.multiverse[globals.currentUniverse].flags["altered"] = 0
         pass
-    keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
-            1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,"x":x,"j":travelBackward,"k":travelForward,44:D4C,46:spawnActor,
+    keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v
+        ,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
+            1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,
+            "x":x,"j":travelBackward,"k":travelForward,44:D4C,46:spawnActor,
             13:clearInput,32:interact,98:placeEntity,103:yetAnotherDebugButton,"i":spawnNPC}
     if key.type == pygame.KEYDOWN and not globals.keyLocked:
         if key.unicode in keys:

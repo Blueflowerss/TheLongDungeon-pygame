@@ -1,0 +1,5 @@
+[
+{"data":{"devname":"stepbox","displayname":"Stepper Box","weight":1,"meleedamage":1,"sprite":1},"flags":["item","steppingtool"]},
+{"data":{"devname":"shovel","displayname":"Shovel","weight":6,"meleedamage":6,"sprite":1},"flags":["item","tool","digging"]},
+{"data":{"devname":"pickaxe","displayname":"Pickaxe","weight":10,"meleedamage":10,"sprite":1},"flags":["item","tool","mining","digging"]}
+]
