@@ -1,4 +1,4 @@
-import globals
+import globals,copy
 
 class Object(object):
     pass
@@ -18,6 +18,9 @@ actors.dict = {}
 flagDefinitions = {
     "item":{"pos":(0,0),"sprite":1,"displayname":"","weight":1,"meleedamage":1}
 }
+saveableData = [
+    "pos"
+]
 loadedItems = globals.readFromFile("data/items/general.json",True)
 def createItem(flags,data):
     item = Object()
@@ -29,6 +32,7 @@ def createItem(flags,data):
     item.flags = flags
     for attribute in data:
         setattr(item,attribute,data[attribute])
+    print(item.__dict__)
     return item
 def loadItems():
     for item in loadedItems:
@@ -36,4 +40,5 @@ def loadItems():
         items.dict[itemClass.devname] = len(items.database)
         items.database.append(itemClass)
 def getItem(Devname):
-    return items.database[items.dict[Devname]]
+    item = copy.deepcopy(items.database[items.dict[Devname]])
+    return item

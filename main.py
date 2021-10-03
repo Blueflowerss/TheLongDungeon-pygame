@@ -49,6 +49,9 @@ if os.path.exists("data/player.dat"):
                     classes.Player(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
             globals.currentUniverse = player["universe"]
             globals.nextActor += 1
+    else:
+        ourUniverse.actors[globals.playerId] = classes.Player(50, 50, 0, 0)
+        globals.nextActor += 1
 else:
     ourUniverse.actors[globals.playerId] = classes.Player(50, 50, 0, 0)
     globals.nextActor += 1

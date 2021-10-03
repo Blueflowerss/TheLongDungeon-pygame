@@ -101,9 +101,10 @@ def keyHandler(scene,key):
         globals.entityType += 1
     def clearInput():
         item = classFactory.getItem("stepbox")
-        item.pos = (20,20)
-        print(item)
+        print(item.__dict__)
+        item.pos = globals.multiverse[globals.currentUniverse].actors[globals.playerId].pos
         globals.multiverse[globals.currentUniverse].entities.append(item)
+        globals.multiverse[globals.currentUniverse].flags["altered"] = 0
     def placeEntity():
         global currentControl
         currentControl = control.BUILDENTITY

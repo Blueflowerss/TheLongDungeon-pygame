@@ -109,7 +109,12 @@ def quicksave(universeNumber):
                 savedEntities = []
                 for entity in multiverse[universeNumber].worldEntities:
                     if "noSave" not in entity.flags:
-                        savedEntities.append(entity)
+                        data = {}
+                        for attribute in entity.__dict__:
+                            if attribute in classes.classFactory.saveableData:
+                                data[attribute] = entity.__dict__[attribute]
+                            data["devname"] = entity.devname
+                        savedEntities.append(data)
                 pickle.dump(savedEntities,entityFile)
                 entityFile.close()
             with open("worlddata/world"+str(universeNumber)+"/world.json","w") as worldFile:
@@ -150,11 +155,13 @@ def quickload(universeNumber):
                     if os.path.exists("worlddata/world" + str(universeNumber) + "/entities.json"):
                         with open("worlddata/world" + str(universeNumber) + "/entities.json", "rb") as entites:
                             if os.fstat(entites.fileno()).st_size > 0:
-                                try:
                                     tempEntity = pickle.load(entites)
-                                    multiverse[universeNumber].worldEntities =  tempEntity
-                                except AttributeError:
-                                    print("Some entity class is missing, couldn't load entities.")
+                                    for entity in tempEntity:
+                                        newEntity = classes.classFactory.getItem(entity["devname"])
+                                        for attribute in entity:
+                                            if hasattr(newEntity,attribute):
+                                                setattr(newEntity,attribute,entity[attribute])
+                                        multiverse[universeNumber].worldEntities.append(newEntity)
 
                     if "save" in save:
                         multiverse[universeNumber].worldType = readFromFile("./data/worldtype.json",True)[save["type"]]

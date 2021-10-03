@@ -7,7 +7,7 @@ import pygame
 import functions,AIBehaviours
 import globals
 import mathstuff
-import worlds,pygame_gui,GUI,scenes
+import worlds,pygame_gui,GUI,scenes,classFactory
 
 clock = pygame.time.Clock()
 
