@@ -113,7 +113,7 @@ def quicksave(universeNumber):
                         for attribute in entity.__dict__:
                             if attribute in classes.classFactory.saveableData:
                                 data[attribute] = entity.__dict__[attribute]
-                            data["devname"] = entity.devname
+                        data["devname"] = entity.devname
                         savedEntities.append(data)
                 pickle.dump(savedEntities,entityFile)
                 entityFile.close()
@@ -128,6 +128,7 @@ def quicksave(universeNumber):
                         savedActors[actor] = multiverse[universeNumber].worldActors[actor]
                 pickle.dump(savedActors,actorFile)
                 actorFile.close()
+    savePlayer()
 def savePlayer():
     with open("data/player.dat", "wb") as playerData:
         if currentUniverse in multiverse:
@@ -156,13 +157,18 @@ def quickload(universeNumber):
                         with open("worlddata/world" + str(universeNumber) + "/entities.json", "rb") as entites:
                             if os.fstat(entites.fileno()).st_size > 0:
                                     tempEntity = pickle.load(entites)
+                                    #print(len(tempEntity))
                                     for entity in tempEntity:
-                                        newEntity = classes.classFactory.getItem(entity["devname"])
-                                        for attribute in entity:
-                                            if hasattr(newEntity,attribute):
-                                                setattr(newEntity,attribute,entity[attribute])
-                                        multiverse[universeNumber].worldEntities.append(newEntity)
-
+                                        newEntity = classes.classFactory.getObject(entity["devname"])
+                                        if newEntity != None:
+                                            for attribute in entity:
+                                                if hasattr(newEntity,attribute):
+                                                    setattr(newEntity,attribute,entity[attribute])
+                                            classes.classFactory.initObject(newEntity)
+                                            multiverse[universeNumber].worldEntities.append(newEntity)
+                                        else:
+                                            print("Couldn't create entity.")
+                            print(len(multiverse[universeNumber].worldEntities))
                     if "save" in save:
                         multiverse[universeNumber].worldType = readFromFile("./data/worldtype.json",True)[save["type"]]
                     if os.path.exists("worlddata/world" + str(universeNumber) + "/actors.dat"):

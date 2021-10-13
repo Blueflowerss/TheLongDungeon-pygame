@@ -133,6 +133,7 @@ class Player(Actor):
             chunkPos = (int(self.pos[0] / globals.chunkSize), int(self.pos[1] / globals.chunkSize))
             if chunkPos != self.tempchunkPos:
                 WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
+                WorldManager.unloadWorldTileEntities(globals.currentUniverse,3, self.pos)
                 WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
                 self.tempchunkPos = chunkPos
 class NPC(Actor):
@@ -282,18 +283,20 @@ class WorldManager:
     def unloadWorldTile(universe,renderDistance=0,centerOfDeletion=(0,0)):
         ourUniverse = globals.multiverse[universe]
         toBeDeleted = []
-        entitiesHitList = []
         for object in ourUniverse.gameBoards.values():
                 dist = tuple(map(lambda i, j: i - j, (int(centerOfDeletion[0]/16),int(centerOfDeletion[1]/16)),object.pos))
                 if abs(dist[0]) > renderDistance or abs(dist[1]) > renderDistance:
                     toBeDeleted.append(object)
+        for object in toBeDeleted:
+            ourUniverse.gameBoards.pop(object.pos)
+    def unloadWorldTileEntities(universe,renderDistance=0,centerOfDeletion=(0,0)):
+        entitiesHitList = []
+        ourUniverse = globals.multiverse[universe]
         for entity in ourUniverse.entities:
             dist = tuple(map(lambda i, j: i - j, centerOfDeletion,entity.pos))
             if abs(dist[0]) > globals.chunkSize*4 or abs(dist[1]) > globals.chunkSize*4:
                 ourUniverse.worldEntities.append(entity)
                 entitiesHitList.append(entity)
-        for object in toBeDeleted:
-            ourUniverse.gameBoards.pop(object.pos)
         for entity in entitiesHitList:
             ourUniverse.entities.remove(entity)
         entitiesHitList = None

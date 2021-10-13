@@ -38,7 +38,6 @@ def spawnActor(pos,universe):
 def prepareUniverse(movement):
     globals.initialize()
     globals.createUniverse(movement)
-    globals.quickload(movement)
     #classes.WorldGen.populateSquare(movement)
 def Step(actor,index,movement,follow):
     boardsToBeDeleted = []
@@ -61,7 +60,6 @@ def Step(actor,index,movement,follow):
             globals.multiverse[index].gameBoards.pop(board.pos)
         for universe in universesToBeDeleted:
             if "altered" in globals.multiverse[universe].flags:
-                classes.WorldManager.unloadEntities(universe)
                 classes.WorldManager.unloadWorldTile(universe)
                 globals.quicksave(universe)
             globals.multiverse.pop(universe)

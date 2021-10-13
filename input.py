@@ -3,7 +3,7 @@ from enum import Enum
 import classes,scenes
 import functions
 import globals
-import pygame,pygame_gui,GUI
+import pygame,pygame_gui,GUI,interactions
 import worlds,classFactory
 
 
@@ -47,8 +47,10 @@ def keyHandler(scene,key):
         tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         if tile in ourUniverse.objectMap:
             entity = ourUniverse.objectMap[tile]
-            if "interactible" in entity.flags:
-                entity._interact()
+            for flag in entity.flags:
+                if flag in interactions.interactions:
+                    interactions.interaction(flag,entity)
+                    print(entity.__dict__)
         global currentControl
         worlds._update_board(ourUniverse)
         currentControl = control.MOVE
@@ -100,8 +102,7 @@ def keyHandler(scene,key):
     def spawnActor():
         globals.entityType += 1
     def clearInput():
-        item = classFactory.getItem("stepbox")
-        print(item.__dict__)
+        item = classFactory.getObject("sign")
         item.pos = globals.multiverse[globals.currentUniverse].actors[globals.playerId].pos
         globals.multiverse[globals.currentUniverse].entities.append(item)
         globals.multiverse[globals.currentUniverse].flags["altered"] = 0

@@ -9,9 +9,6 @@ import globals
 import scenes
 import worlds,classFactory
 clock = pygame.time.Clock()
-tempImages = {"images_alpha":{},"images_nostretch":{}}
-images ={}
-imagekeys = []
 pygame.init()
 pygame.font.init()
 pygame.event.set_blocked(pygame.MOUSEMOTION)
@@ -22,7 +19,7 @@ pygame.key.set_repeat(300,50)
 worlds.ready()
 globals.initialize()
 globals.ready()
-classFactory.loadItems()
+classFactory.loadObjects()
 director = scenes.Director()
 director.change_scene(scenes.menuScene)
 globals.director = director

@@ -1,14 +1,14 @@
-import globals,copy
+import globals,copy,os
 
 class Object(object):
     pass
 
-items = Object()
+objects = Object()
 entities = Object()
 actors = Object()
 
-items.database = []
-items.dict = {}
+objects.database = []
+objects.dict = {}
 
 entities.database = []
 entities.dict = {}
@@ -16,29 +16,57 @@ entities.dict = {}
 actors.database = []
 actors.dict = {}
 flagDefinitions = {
-    "item":{"pos":(0,0),"sprite":1,"displayname":"","weight":1,"meleedamage":1}
+    "base":{"devname":""},
+    "item":{"pos":(0,0),"sprite":1,"displayname":"","weight":1,"meleedamage":1},
+    "furniture":{"pos":(0,0),"sprite":1},
+    "door":{"state":False,"spriteTrue":1,"spriteFalse":1},
+    "sign":{"text":""}
 }
 saveableData = [
-    "pos"
+    "pos","state","text"
 ]
-loadedItems = globals.readFromFile("data/items/general.json",True)
-def createItem(flags,data):
+blueprints = []
+for file in sorted(os.listdir("data/blueprints")):
+    loadedItems = globals.readFromFile("data/blueprints/"+file,True)
+    blueprints.extend(loadedItems)
+def initObject(entity):
+    def door():
+        if entity.state == True:
+            entity.sprite = entity.spriteTrue
+            try:
+                entity.flags.remove("blocks")
+            except:
+                pass
+        else:
+            entity.sprite = entity.spriteFalse
+            if "blocks" not in entity.flags:
+                entity.flags.append("blocks")
+    objectTypes = {"door":door}
+    for flag in entity.flags:
+        if flag in objectTypes:
+            objectTypes[flag]()
+def createObject(flags,data):
     item = Object()
+    item.flags = flags
     for flag in flags:
         if flag in flagDefinitions:
             definition = flagDefinitions[flag]
             for attribute in definition:
-                setattr(item,attribute,definition[attribute])
-    item.flags = flags
+                if attribute != "flags":
+                    setattr(item,attribute,definition[attribute])
+            if "flags" in definition:
+                for innerFlag in definition["flags"]:
+                    if innerFlag not in item.flags:
+                        item.flags.append(innerFlag)
     for attribute in data:
         setattr(item,attribute,data[attribute])
-    print(item.__dict__)
     return item
-def loadItems():
-    for item in loadedItems:
-        itemClass = createItem(item["flags"],item["data"])
-        items.dict[itemClass.devname] = len(items.database)
-        items.database.append(itemClass)
-def getItem(Devname):
-    item = copy.deepcopy(items.database[items.dict[Devname]])
-    return item
+def loadObjects():
+    for object in blueprints:
+        itemClass = createObject(object["flags"],object["data"])
+        objects.dict[itemClass.devname] = len(objects.database)
+        objects.database.append(itemClass)
+def getObject(Devname):
+    if Devname in objects.dict:
+        item = copy.deepcopy(objects.database[objects.dict[Devname]])
+        return item
