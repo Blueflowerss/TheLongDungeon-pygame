@@ -22,9 +22,10 @@ flagDefinitions = {
     "door":{"state":False,"spriteTrue":1,"spriteFalse":1},
     "sign":{"text":""}
 }
-saveableData = [
+interactions = frozenset(["door","sign"])
+saveableData = frozenset([
     "pos","state","text"
-]
+])
 blueprints = []
 for file in sorted(os.listdir("data/blueprints")):
     loadedItems = globals.readFromFile("data/blueprints/"+file,True)
@@ -52,12 +53,15 @@ def createObject(flags,data):
         if flag in flagDefinitions:
             definition = flagDefinitions[flag]
             for attribute in definition:
-                if attribute != "flags":
-                    setattr(item,attribute,definition[attribute])
-            if "flags" in definition:
-                for innerFlag in definition["flags"]:
-                    if innerFlag not in item.flags:
-                        item.flags.append(innerFlag)
+                setattr(item,attribute,definition[attribute])
+        if flag in interactions:
+            done = False
+            while not done:
+                if hasattr(item,"interactions"):
+                    item.interactions.append(flag)
+                    done = True
+                else:
+                    setattr(item,"interactions",[])
     for attribute in data:
         setattr(item,attribute,data[attribute])
     return item

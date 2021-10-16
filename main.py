@@ -9,17 +9,17 @@ import globals
 import scenes
 import worlds,classFactory
 clock = pygame.time.Clock()
+classFactory.loadObjects()
 pygame.init()
 pygame.font.init()
 pygame.event.set_blocked(pygame.MOUSEMOTION)
 pygame.key.set_repeat(300,50)
 #board related stuff
-
 #multiverse related stuff
 worlds.ready()
 globals.initialize()
 globals.ready()
-classFactory.loadObjects()
+
 director = scenes.Director()
 director.change_scene(scenes.menuScene)
 globals.director = director

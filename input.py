@@ -47,10 +47,10 @@ def keyHandler(scene,key):
         tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         if tile in ourUniverse.objectMap:
             entity = ourUniverse.objectMap[tile]
-            for flag in entity.flags:
-                if flag in interactions.interactions:
-                    interactions.interaction(flag,entity)
-                    print(entity.__dict__)
+            if hasattr(entity,"interactions"):
+                for flag in entity.interactions:
+                    if flag in interactions.interactions:
+                        interactions.interaction(flag,entity)
         global currentControl
         worlds._update_board(ourUniverse)
         currentControl = control.MOVE
