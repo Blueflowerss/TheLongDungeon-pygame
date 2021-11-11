@@ -94,23 +94,15 @@ class Actor(Entity):
                 target = ourUniverse.board[pos]
                 if "blocks" in ourUniverse.board[pos].flags:
                     pass
-                elif (pos) in ourUniverse.objectMap:
+                elif pos in ourUniverse.objectMap:
                     target = ourUniverse.objectMap[pos]
-                    if "blocks" in target.flags:
-                        pass
-                    else:
-                        empty()
+                    for entity in target:
+                        if "blocks" in entity.flags:
+                            return
+                        else:
+                            empty()
                 else:
                     empty()
-class Furniture(Entity):
-    def __init__(self, x, y, type):
-        super().__init__(x, y, type)
-        self.sprite = 0
-class InteractibleFurniture(Furniture):
-    def __init__(self, x, y, type):
-        super().__init__(x, y, type)
-    def _interact(self):
-        print("no interaction defined.")
 class Tile():
     def __init__(self,id,universe):
         self.flags = {}
@@ -181,38 +173,6 @@ class NPC(Actor):
                     empty()
         else:
             pass
-class Door(InteractibleFurniture):
-    def __init__(self, x, y,type=None):
-        super().__init__(x,y,"door")
-        jsonObject = globals.readFromFile("data/entityType.json", True)["door"]
-        self.sprites = (jsonObject["trueSprite"], jsonObject["falseSprite"])
-        self.flags["interactible"] = 0
-        self.sprite = 0
-        self.state = False
-        if self.state:
-            self.flags["blocks"] = 0
-            self.sprite = self.sprites[0]
-        else:
-            self.flags.pop("blocks",None)
-            self.sprite = self.sprites[1]
-    def _interact(self):
-        if "blocks" in self.flags:
-            self.sprite = self.sprites[0]
-            self.flags.pop("blocks",None)
-        else:
-            self.sprite = self.sprites[1]
-            self.flags["blocks"] = 0
-class Sign(InteractibleFurniture):
-    def __init__(self, x, y,type=None):
-        super().__init__(x,y,"sign")
-        jsonObject = globals.readFromFile("data/entityType.json", True)["sign"]
-        self.flags = jsonObject["flags"]
-        self.text = ""
-        self.sprite = jsonObject["sprite"]
-    def _interact(self):
-        globals.director.GUI["signMenu"] = GUI.signMenu(globals.director.manager,self)
-
-
 #systems
 class Worldtile:
     def __init__(self,universe,pos=(0,0),generateStructures=False,biome="flat"):
@@ -260,9 +220,10 @@ class Worldtile:
                                                                        yPos)
                 if (spot[0],spot[1]) in self.tiles and (spot[0],spot[1]) not in universe.alteredTerrain:
                     if "blocks" not in self.tiles[spot[0],spot[1]].flags:
-                        tree = globals.entityCreator("tree",pos=(spot[0],spot[1]))
-                        tree.flags["noSave"] = 0
+                        tree = classFactory.getObject("tree")
+                        tree.flags.append("noSave")
                         tree.sprite = globals.tileHash[universe.worldType["tree"]]
+                        tree.pos = (spot[0],spot[1])
                         universe.entities.append(tree)
                         #self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
 class biomeTile:

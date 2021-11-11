@@ -49,9 +49,11 @@ if os.path.exists("data/player.dat"):
     else:
         ourUniverse.actors[globals.playerId] = classes.Player(50, 50, 0, 0)
         globals.nextActor += 1
+        print(1)
 else:
     ourUniverse.actors[globals.playerId] = classes.Player(50, 50, 0, 0)
     globals.nextActor += 1
+    print(2)
 if globals.readFromFile("data/splashtext.txt") != "":
     globals.insertToActionLog(globals.readFromFile("data/splashtext.txt"))
 else:

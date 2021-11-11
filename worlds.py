@@ -81,7 +81,7 @@ def _render_screen(screen,universe):
     screen.blit(_render_text(str(list(globals.tileDictionary)[globals.buildType % len(globals.tileDictionary)])),
                 (60, 50))
     screen.blit(
-        _render_text(str(list(globals.entityDictionary)[globals.entityType % len(globals.entityDictionary)])),
+        _render_text(str(list(globals.entityDictionary)[globals.entityType % len(classes.classFactory.objects.database)].__dict__["devname"])),
         (10, 190))
     screen.blit(_render_text("earth " + str(globals.currentUniverse)), (resolution[0] / 2 - 20, 20))
     screen.blit(_render_text(str(globals.multiverse[globals.currentUniverse].worldType["name"])),
@@ -94,11 +94,22 @@ def _update_objects(universe):
     universe.objectMap = {}
     aliveActors = []
     for actor in universe.actors.values():
-        universe.objectMap[actor.pos] = actor
+        if actor.pos in universe.objectMap:
+            universe.objectMap[actor.pos].append(actor)
+        else:
+            universe.objectMap[actor.pos] = []
         if actor.alive:
             aliveActors.append(actor)
     for object in universe.entities:
-        universe.objectMap[object.pos] = object
+        #gotta create a list of objects at the coordinate, then add objects to that list
+        #Objectmap is essentially a collision map, without it you couldn't interact with anything.
+        def addAllObjects():
+            if object.pos in universe.objectMap:
+                universe.objectMap[object.pos].append(object)
+            else:
+                universe.objectMap[object.pos] = []
+                addAllObjects()
+        addAllObjects()
         # Process what the object does
         if globals.ifMethodExists(object, "_process"):
             object._process()

@@ -1,5 +1,5 @@
 import classes
-import globals
+import globals,interactions,worlds
 
 
 ## THING DOERS
@@ -13,8 +13,9 @@ def alter_tile(tile,id):
             ourUniverse.alteredTerrain[tile] = classes.Tile(id,ourUniverse)
             ourUniverse.flags["altered"] = 0
         if tile in ourUniverse.objectMap:
-            if ourUniverse.objectMap[tile] in ourUniverse.entities:
-                ourUniverse.entities.remove(ourUniverse.objectMap[tile])
+            object = ourUniverse.objectMap[tile][0]
+            if object in ourUniverse.entities:
+                ourUniverse.entities.remove(object)
     elif chunkBlock not in ourUniverse.gameBoards:
         if chunkBlock[0] > 1 and chunkBlock[1]> 1 and chunkBlock[0] < (globals.worldSize/globals.chunkSize)-2 and chunkBlock[1] < (globals.worldSize/globals.chunkSize)-2:
             ourUniverse.gameBoards[chunkBlock] = classes.Worldtile(chunkBlock[0],chunkBlock[1],ourUniverse,True)
@@ -82,3 +83,9 @@ def testTravel(actor,index,movement):
             return True
     else:
         return False
+def interactWithEntity(entity):
+    if hasattr(entity, "interactions"):
+        for flag in entity.interactions:
+            if flag in interactions.interactions:
+                interactions.interaction(flag, entity)
+                worlds._update_board(globals.multiverse[globals.currentUniverse])

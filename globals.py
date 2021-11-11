@@ -47,7 +47,7 @@ def createUniverse(index):
 def ready():
     global tileDictionary
     global entityDictionary
-    entityDictionary = json.loads(readFromFile("data/entityType.json"))
+    entityDictionary = classes.classFactory.objects.database
     tileDictionary = readFromFile("./data/tiles.json",jsonize=True)
     for item in tileDictionary.values():
         tileHash[item["name"]] = item["spriteId"]
@@ -84,6 +84,8 @@ def entityCreator(classType,sprite=None,pos=(0,0)):
         return entity
     else:
         print("something's wrong with the entity creator")
+def markForSaving(universeNumber):
+    multiverse[universeNumber].flags["altered"] = 0
 def quicksave(universeNumber):
     savedUniverse = {"tiles":{},"entities":{}}
     if not os.path.exists("worlddata/world"+str(universeNumber)):
@@ -128,7 +130,6 @@ def quicksave(universeNumber):
                         savedActors[actor] = multiverse[universeNumber].worldActors[actor]
                 pickle.dump(savedActors,actorFile)
                 actorFile.close()
-    savePlayer()
 def savePlayer():
     with open("data/player.dat", "wb") as playerData:
         if currentUniverse in multiverse:

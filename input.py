@@ -46,13 +46,12 @@ def keyHandler(scene,key):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
         if tile in ourUniverse.objectMap:
-            entity = ourUniverse.objectMap[tile]
-            if hasattr(entity,"interactions"):
-                for flag in entity.interactions:
-                    if flag in interactions.interactions:
-                        interactions.interaction(flag,entity)
+            itemList = ourUniverse.objectMap[tile]
+            if len(itemList) > 1:
+                scene.director.GUI["interact"] = GUI.itemList(scene.director.manager,itemList,"interact")
+            else:
+                functions.interactWithEntity(itemList[0])
         global currentControl
-        worlds._update_board(ourUniverse)
         currentControl = control.MOVE
     def controlHandler(direction):
         if direction:
@@ -102,7 +101,8 @@ def keyHandler(scene,key):
     def spawnActor():
         globals.entityType += 1
     def clearInput():
-        item = classFactory.getObject("sign")
+        devname = list(globals.entityDictionary)[globals.entityType % len(classes.classFactory.objects.database)].__dict__["devname"]
+        item = classFactory.getObject(devname)
         item.pos = globals.multiverse[globals.currentUniverse].actors[globals.playerId].pos
         globals.multiverse[globals.currentUniverse].entities.append(item)
         globals.multiverse[globals.currentUniverse].flags["altered"] = 0
@@ -118,7 +118,6 @@ def keyHandler(scene,key):
         globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
         globals.nextActor += 1
         globals.multiverse[globals.currentUniverse].flags["altered"] = 0
-        pass
     keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v
         ,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,
@@ -130,5 +129,5 @@ def keyHandler(scene,key):
         elif key.key in keys:
             keys[key.key]()
     elif key.type == pygame.QUIT:
-        pass
+        globals.save_and_quit()
     worlds._update()

@@ -1,4 +1,4 @@
-import pygame,pygame_gui,globals,functions,worlds,mathstuff,scenes
+import pygame,pygame_gui,globals,functions,worlds,mathstuff,scenes,interactions
 def inputHandler(director,userEvent):
     #print(userEvent)
     if userEvent.user_type == pygame_gui.UI_BUTTON_PRESSED:
@@ -17,6 +17,7 @@ def inputHandler(director,userEvent):
             globals.keyLocked = False
             menu = director.GUI["signMenu"]
             menu.entity.text = menu.textEntry.text
+            globals.markForSaving(globals.currentUniverse)
         elif userEvent.ui_object_id == "#mainMenu.#start":
             director.manager.clear_and_reset()
             director.change_scene(scenes.playScene)
@@ -27,6 +28,11 @@ def inputHandler(director,userEvent):
         globals.keyLocked = True
     elif userEvent.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
         globals.keyLocked = False
+    elif userEvent.user_type == pygame_gui.UI_SELECTION_LIST_NEW_SELECTION:
+        if userEvent.ui_object_id == "#menuinteract.#selectionList":
+            entity = director.GUI["interact"].items[int(userEvent.text[0])]
+            functions.interactWithEntity(entity)
+            director.GUI["interact"].container.kill()
 class teleportMenu:
     def __init__(self,manager):
         self.container = pygame_gui.elements.UIWindow(pygame.Rect(50, 50, 250, 250), manager,"Become anywhere!",object_id="#teleportMenu")
@@ -58,3 +64,21 @@ class mainMenu:
         self.quit = pygame_gui.elements.UIButton(pygame.Rect(self.container.rect[2]/3,(self.container.rect[3]/3)+30, 60, 30), "Exit", manager,
                                                   container=self.container, object_id="#quit")
         self.container.close_window_button.disable()
+class interactionMenu:
+    def __init__(self,manager):
+        self.container = pygame_gui.elements.UIWindow(pygame.Rect(50,50,250,250),manager, "What do you wish to do?",
+                                                      object_id="#interactMenu")
+class itemList:
+    def __init__(self,manager,listOfItems,menu_id):
+        #menu_id allows genetic selection menus
+        stringItemList = []
+        self.items = listOfItems
+        index = 0
+        for item in listOfItems:
+            stringItemList.append(str(index)+" - "+item.displayname)
+            index += 1
+        self.container = pygame_gui.elements.UIWindow(pygame.Rect(50,50,250,250),manager, "Objects",
+                                                      object_id="#menu"+menu_id)
+        self.container.set_dimensions((250,15+30*len(stringItemList)))
+        self.selection_list = pygame_gui.elements.UISelectionList(pygame.Rect(0,0,150,25*len(stringItemList)),stringItemList,
+                                                                  manager,container=self.container,object_id="#selectionList")
