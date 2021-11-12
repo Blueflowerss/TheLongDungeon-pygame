@@ -23,25 +23,25 @@ globals.ready()
 director = scenes.Director()
 director.change_scene(scenes.menuScene)
 globals.director = director
-ourUniverse = globals.multiverse[globals.currentUniverse]
 #actor related stuff
+globals.createUniverse(0)
+ourUniverse = globals.multiverse[0]
 currentActor = 0
 #window related stuff
 text = ""
 guiInput = {}
 currentWindow = ""
-print("Another hello from Zeya.")
+print("Another hello from Blueflowers.")
 if os.path.exists("data/player.dat"):
     if os.stat("data/player.dat").st_size > 0:
         with open("data/player.dat", "rb") as f:
             player = pickle.load(f)
             if player["universe"] in globals.multiverse:
-                functions.prepareUniverse(player["universe"])
+                globals.createUniverse(player["universe"])
                 globals.multiverse[player["universe"]].actors[globals.playerId] =\
                     classes.Player(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
             else:
-                globals.multiverse[player["universe"]] = classes.Universe(player["universe"])
-                functions.prepareUniverse(player["universe"])
+                globals.createUniverse(player["universe"])
                 globals.multiverse[player["universe"]].actors[globals.playerId] =\
                     classes.Player(player["pos"][0], player["pos"][1], globals.playerId, player["universe"])
             globals.currentUniverse = player["universe"]

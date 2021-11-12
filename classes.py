@@ -37,7 +37,7 @@ class Universe:
         #terrain altered by the player
         self.alteredTerrain = {}
         #flags
-        self.flags = {}
+        self.flags = []
         if type == None:
             if mathstuff.is_number(self.index):
                 randNumber = int(self.index/20)

@@ -39,10 +39,14 @@ def initialize():
     global multiverse
     global currentUniverse
     global chunkSize
+
 def createUniverse(index):
     if index not in multiverse:
+        #creates universe at INDEX
         multiverse[index] = classes.Universe(index)
+        #load saved shit
         quickload(index)
+        #add trees and structure
         worlds.prepareWorld(index)
 def ready():
     global tileDictionary
@@ -51,7 +55,6 @@ def ready():
     tileDictionary = readFromFile("./data/tiles.json",jsonize=True)
     for item in tileDictionary.values():
         tileHash[item["name"]] = item["spriteId"]
-    createUniverse(currentUniverse)
 def readFromFile(filePath,jsonize=False,raiseException=True):
     if os.path.exists(filePath):
         with open(filePath,"r") as f:
@@ -85,7 +88,7 @@ def entityCreator(classType,sprite=None,pos=(0,0)):
     else:
         print("something's wrong with the entity creator")
 def markForSaving(universeNumber):
-    multiverse[universeNumber].flags["altered"] = 0
+    multiverse[universeNumber].flags.append("altered")
 def quicksave(universeNumber):
     savedUniverse = {"tiles":{},"entities":{}}
     if not os.path.exists("worlddata/world"+str(universeNumber)):

@@ -35,7 +35,7 @@ def keyHandler(scene,key):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         pos = tuple(map(sum, zip(ourUniverse.actors[currentActor].pos,direction)))
         entity = globals.entityCreator(str(list(globals.entityDictionary)[globals.entityType % len(globals.entityDictionary)]),pos=(pos[0],pos[1]))
-        ourUniverse.flags["altered"] = 0
+        globals.multiverse[globals.currentUniverse].flags.append("altered")
         ourUniverse.entities.append(entity)
         global currentControl
         worlds._update_board(ourUniverse)
@@ -105,7 +105,7 @@ def keyHandler(scene,key):
         item = classFactory.getObject(devname)
         item.pos = globals.multiverse[globals.currentUniverse].actors[globals.playerId].pos
         globals.multiverse[globals.currentUniverse].entities.append(item)
-        globals.multiverse[globals.currentUniverse].flags["altered"] = 0
+        globals.multiverse[globals.currentUniverse].flags.append("altered")
     def placeEntity():
         global currentControl
         currentControl = control.BUILDENTITY
@@ -117,7 +117,7 @@ def keyHandler(scene,key):
     def spawnNPC():
         globals.multiverse[globals.currentUniverse].actors[globals.nextActor] = (classes.NPC(50,50,"actor"))
         globals.nextActor += 1
-        globals.multiverse[globals.currentUniverse].flags["altered"] = 0
+        globals.multiverse[globals.currentUniverse].flags.append("altered")
     keys = {"w":up,"s":down,"a":left,"d":right,"q":q,"e":e,"\x1b":escape,"z":z,"c":c,"v":v
         ,1073741913:lowerLeft,1073741914:down,1073741915:lowerRight,1073741918:right,1073741916:left,
             1073741919:upperLeft,1073741920:up,1073741921:upperRight,1073741917:middle,
@@ -129,5 +129,5 @@ def keyHandler(scene,key):
         elif key.key in keys:
             keys[key.key]()
     elif key.type == pygame.QUIT:
-        globals.save_and_quit()
+        pass
     worlds._update()
