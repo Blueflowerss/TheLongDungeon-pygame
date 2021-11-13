@@ -1,4 +1,4 @@
-import pygame,pygame_gui,sys,globals,os,pickle,functions,classes,imageThings,input,worlds,GUI
+import pygame,pygame_gui,sys,globals,os,pickle,functions,classes,imageThings,input,worlds,GUI,rendering
 clock = pygame.time.Clock()
 class Director:
     def __init__(self):
@@ -58,7 +58,7 @@ class playScene:
         self.manager.process_events(event)
 
     def on_draw(self,screen):
-        worlds._render_screen(self.screen, globals.currentUniverse)
+        rendering._render_screen(self.screen, globals.currentUniverse)
         self.manager.draw_ui(self.screen)
 
 

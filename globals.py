@@ -13,6 +13,7 @@ resolution = (600,600)
 chunkSize = 16
 worldSize = 1024
 boardDistancing = 32
+debugInfo = False
 
 screen = pygame.display.set_mode(resolution)
 

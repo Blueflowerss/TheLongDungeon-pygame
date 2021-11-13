@@ -86,7 +86,10 @@ def keyHandler(scene,key):
     def e():
         globals.buildType += 1
     def z():
-        pass
+        if globals.debugInfo:
+            globals.debugInfo = False
+        else:
+            globals.debugInfo = True
     def x():
         pass
     def c():
