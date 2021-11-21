@@ -11,7 +11,9 @@ def is_number(string):
         return False
 def first_n_digits(num, n):
     return num // 10 ** (int(math.log(num, 10)) - n + 1)
-def generateNoise(value,x,y,min,max,seed,raw=False,octaves=3):
+def capValue(value,maxValue,minValue):
+    return max(min(value, minValue), maxValue)
+def generateNoise(value,x,y,min=0.04,max=1,seed=globals.seed,raw=False,octaves=3):
     if octaves == 1:
         tmpNoise = noise.snoise4(x*0.01,y * 0.01,value*0.01,value*0.01)
     elif octaves == 2:
@@ -31,7 +33,7 @@ def generateNoise(value,x,y,min,max,seed,raw=False,octaves=3):
         return color_world
     else:
         return tmpNoise
-def weigtedChances(list,chances):
-    random.seed(globals.seed)
-    randomList = random.choices(list,weights=chances,k=5)
+def weigtedChances(list,chances,seed=globals.seed):
+    random.seed(seed)
+    randomList = random.choices(list,weights=chances,k=len(list))
     return randomList

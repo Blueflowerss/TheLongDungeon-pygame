@@ -48,7 +48,7 @@ def createUniverse(index):
         #load saved shit
         quickload(index)
         #add trees and structure
-        worlds.prepareWorld(index)
+        #worlds.prepareWorld(index)
 def ready():
     global tileDictionary
     global entityDictionary

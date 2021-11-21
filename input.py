@@ -19,7 +19,7 @@ def keyHandler(scene,key):
     def DIG(direction):
         ourUniverse = globals.multiverse[globals.currentUniverse]
         tile = tuple(map(sum, zip(ourUniverse.actors[globals.playerId].pos,direction)))
-        functions.alter_tile(tile,globals.tileHash[str(globals.multiverse[globals.currentUniverse].worldType["grass"])])
+        functions.alter_tile(tile,globals.tileHash["grass"])
         global currentControl
         worlds._update_board(ourUniverse)
         currentControl = control.MOVE

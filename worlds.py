@@ -9,19 +9,19 @@ worldTerrain = {
 }
 worldChances = {}
 resolution = (600,600)
-
 def initialize():
     global worldData
+def prepareWorldTypeData():
+    for type in worldData:
+        print(worldData[type])
+        worldChances[type] = worldData[type]["settings"]["chance"]
+
 def ready():
     global worldData
+    global biomes
     worldData = globals.readFromFile("./data/worldtype.json",True)
-    for type in worldData:
-        worldChances[type] = worldData[type]["chance"]
-
-def prepareWorld(universe):
-    if globals.multiverse[universe].worldType["buildings"]:
-        pass
-        #classes.WorldGen.populateSquare(index)
+    biomes = globals.readFromFile("./data/biomes.json",True)
+    prepareWorldTypeData()
 def _update_objects(universe):
     universe.objectMap = {}
     aliveActors = []

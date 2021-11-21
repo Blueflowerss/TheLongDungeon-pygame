@@ -179,7 +179,17 @@ class Worldtile:
         self.pos = pos
         self.tiles = {}
         self.entities = []
-        self.biome = None
+        #selecting biome
+
+        biomeValue = abs(mathstuff.generateNoise(universe.index, int(pos[0]), int(pos[1]), raw=True, octaves=3) * 10)
+        biomes = mathstuff.weigtedChances(list(universe.worldType["biomes"].keys()),list(universe.worldType["biomes"].values()), biomeValue)
+        print(biomeValue/len(biomes))
+        biomeValue = int(mathstuff.capValue(biomeValue,len(biomes)-1,0))
+        print(biomes)
+
+        self.biome = biomes[biomeValue-1]
+
+        currentBiome = worlds.biomes[self.biome]
         originX,originY = self.pos[0] * globals.chunkSize, self.pos[1] * globals.chunkSize
         for xTile in range(0,globals.chunkSize):
              for yTile in range(0,globals.chunkSize):
@@ -190,13 +200,13 @@ class Worldtile:
                     elif (xPos,yPos) in universe.loadedTerrain:
                         self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
                     else:
-                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[universe.worldType["terrain"]],1,globals.seed)
-                        if perlinTile == 1 and universe.worldType["mountains"]:
-                            tile = Tile(globals.tileHash[universe.worldType["ground"]],universe)
+                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[currentBiome["layerMaterial"]["terrainType"]],1,globals.seed)
+                        if perlinTile == 1 and "mountains" in currentBiome["features"]:
+                            tile = Tile(globals.tileHash[currentBiome["layerMaterial"]["ground"]],universe)
                             tile.flags["blocks"] = 0
                             self.tiles[(xPos,yPos)] = tile
                         else:
-                            tile = Tile(globals.tileHash[universe.worldType["grass"]],universe)
+                            tile = Tile(globals.tileHash[currentBiome["layerMaterial"]["grass"]],universe)
                             self.tiles[(xPos,yPos)] = tile
         toBeDeleted = []
         for entity in universe.worldEntities:
@@ -213,8 +223,8 @@ class Worldtile:
                 universe.actors[actorID] = (actor)
         for actor in actorsToBeDeleted:
             universe.worldActors.pop(actor)
-        if universe.worldType["treeGen"]:
-            for number in range(2,universe.worldType["treeAmount"]):
+        if "treeGen" in currentBiome["features"]:
+            for number in range(2,currentBiome["settings"]["treeAmount"]):
                 random.seed(universe.index*xPos*yPos*number)
                 spot = random.randint(xPos - globals.chunkSize, xPos), random.randint(yPos - globals.chunkSize,
                                                                        yPos)
@@ -222,7 +232,7 @@ class Worldtile:
                     if "blocks" not in self.tiles[spot[0],spot[1]].flags:
                         tree = classFactory.getObject("tree")
                         tree.flags.append("noSave")
-                        tree.sprite = globals.tileHash[universe.worldType["tree"]]
+                        tree.sprite = globals.tileHash[currentBiome["layerMaterial"]["tree"]]
                         tree.pos = (spot[0],spot[1])
                         universe.entities.append(tree)
                         #self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
