@@ -30,12 +30,6 @@ class Universe:
         self.objectMap = {}
         #chunks
         self.gameBoards = {}
-        #"biome" map
-        self.featureMap = {}
-        #terrain created on the spot
-        self.loadedTerrain = {}
-        #terrain altered by the player
-        self.alteredTerrain = {}
         #flags
         self.flags = []
         if type == None:
@@ -82,34 +76,27 @@ class Actor(Entity):
     def move_object(self, amount):
         globals.initialize()
         ourUniverse = globals.multiverse[self.currentUniverse]
-        if (self.pos[0] + amount[0], self.pos[1] + amount[1]) in ourUniverse.board:
-            pos = tuple(map(sum, zip(self.pos, amount)))
-            curBoard = ourUniverse.board[tuple(map(sum, zip(self.pos, amount)))]
-            move = tuple(map(sum, zip(self.pos, amount)))
-            chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
-            def empty():
-                self.pos = pos
+        #if (self.pos[0] + amount[0], self.pos[1] + amount[1]) in ourUniverse.board:
+        pos = tuple(map(sum, zip(self.pos, amount)))
+        #curBoard = ourUniverse.board[tuple(map(sum, zip(self.pos, amount)))]
+        move = tuple(map(sum, zip(self.pos, amount)))
+        chunkMove = (int(move[0] / globals.chunkSize), int(move[1] / globals.chunkSize))
+        def empty():
+            self.pos = pos
 
-            if (pos) in ourUniverse.board:
-                target = ourUniverse.board[pos]
-                if "blocks" in ourUniverse.board[pos].flags:
-                    pass
-                elif pos in ourUniverse.objectMap:
-                    target = ourUniverse.objectMap[pos]
-                    for entity in target:
-                        if "blocks" in entity.flags:
-                            return
-                        else:
-                            empty()
+        if pos in ourUniverse.objectMap:
+            targetList = ourUniverse.objectMap[pos]
+            for target in targetList:
+                if "blocks" in target.flags:
+                    continue
                 else:
                     empty()
+                    break
 class Tile():
     def __init__(self,id,universe):
         self.flags = {}
         if str(id) in globals.tileDictionary:
             tile = globals.tileDictionary[str(id)]
-            if tile["behavior"] == "blocks":
-                self.flags["blocks"] = 0
         else:
             tile = globals.tileDictionary[str(globals.tileHash[universe.worldType["ground"]])]
         self.spriteId = tile["spriteId"]
@@ -125,8 +112,8 @@ class Player(Actor):
             chunkPos = (int(self.pos[0] / globals.chunkSize), int(self.pos[1] / globals.chunkSize))
             if chunkPos != self.tempchunkPos:
                 WorldManager.loadWorldTile(chunkPos[0], chunkPos[1], 3, globals.currentUniverse)
-                WorldManager.unloadWorldTileEntities(globals.currentUniverse,3, self.pos)
-                WorldManager.unloadWorldTile(globals.currentUniverse,3, self.pos)
+                WorldManager.unloadWorldTileEntities(globals.currentUniverse,2, centerOfDeletion=self.pos)
+                WorldManager.unloadWorldTile(globals.currentUniverse,3, centerOfDeletion=self.pos)
                 self.tempchunkPos = chunkPos
 class NPC(Actor):
     def __init__(self,x,y,id):
@@ -175,17 +162,14 @@ class NPC(Actor):
             pass
 #systems
 class Worldtile:
-    def __init__(self,universe,pos=(0,0),generateStructures=False,biome="flat"):
+    def __init__(self,universe,pos=(0,0),generateStructures=False):
         self.pos = pos
-        self.tiles = {}
-        self.entities = []
+        self.tiles = []
         #selecting biome
 
-        biomeValue = abs(mathstuff.generateNoise(universe.index, int(pos[0]), int(pos[1]), raw=True, octaves=3) * 10)
+        biomeValue = abs(mathstuff.generateNoise(universe.index, int(pos[0]/16), int(pos[1]/16), raw=True, octaves=3))
         biomes = mathstuff.weigtedChances(list(universe.worldType["biomes"].keys()),list(universe.worldType["biomes"].values()), biomeValue)
-        print(biomeValue/len(biomes))
         biomeValue = int(mathstuff.capValue(biomeValue,len(biomes)-1,0))
-        print(biomes)
 
         self.biome = biomes[biomeValue-1]
 
@@ -194,20 +178,18 @@ class Worldtile:
         for xTile in range(0,globals.chunkSize):
              for yTile in range(0,globals.chunkSize):
                 xPos,yPos = xTile + self.pos[0] * globals.chunkSize,yTile + self.pos[1] * globals.chunkSize
-                if xPos > -1 and yPos > -1:
-                    if (xPos,yPos) in universe.alteredTerrain:
-                        self.tiles[xPos,yPos] = universe.alteredTerrain[xPos,yPos]
-                    elif (xPos,yPos) in universe.loadedTerrain:
-                        self.tiles[xPos,yPos] = universe.loadedTerrain[xPos,yPos]
+                if xPos > 0 and yPos > 0 and (xPos,yPos) not in universe.objectMap:
+                    perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos), worlds.worldTerrain[
+                        currentBiome["layerMaterial"]["terrainType"]], 1, globals.seed)
+                    if "mountains" in currentBiome["features"] and perlinTile == 1:
+                        tile = classFactory.getObject("wall")
+                        tile.pos = (xPos,yPos)
+                        self.tiles.append(tile)
                     else:
-                        perlinTile = mathstuff.generateNoise(universe.index, (xPos), (yPos),worlds.worldTerrain[currentBiome["layerMaterial"]["terrainType"]],1,globals.seed)
-                        if perlinTile == 1 and "mountains" in currentBiome["features"]:
-                            tile = Tile(globals.tileHash[currentBiome["layerMaterial"]["ground"]],universe)
-                            tile.flags["blocks"] = 0
-                            self.tiles[(xPos,yPos)] = tile
-                        else:
-                            tile = Tile(globals.tileHash[currentBiome["layerMaterial"]["grass"]],universe)
-                            self.tiles[(xPos,yPos)] = tile
+                        tile = classFactory.getObject("ground")
+                        tile.pos = (xPos,yPos)
+                        tile.flags.append("noSave")
+                        self.tiles.append(tile)
         toBeDeleted = []
         for entity in universe.worldEntities:
             if entity.pos[0] in range(originX,originX+globals.chunkSize) and entity.pos[1] in range(originY,originY+globals.chunkSize):
@@ -236,9 +218,6 @@ class Worldtile:
                         tree.pos = (spot[0],spot[1])
                         universe.entities.append(tree)
                         #self.tiles[spot[0],spot[1]] = Tile(spot[0],spot[1],globals.tileHash[universe.worldType["tree"]],universe)
-class biomeTile:
-    def __init__(self,universe,biome=None,pos=(0,0)):
-        self.pos = pos
 
 class WorldManager:
     def loadWorldTile(x,y,renderDistance,universe):
@@ -246,17 +225,21 @@ class WorldManager:
         chunkMove = x,y
         for number in range(-renderDistance, renderDistance):
             for number1 in range(-renderDistance, renderDistance):
-                if (chunkMove[0] + number, chunkMove[1] + number1) in ourUniverse.gameBoards:
-                    pass
-                else:
-                    ourUniverse.gameBoards[chunkMove[0] + number, chunkMove[1] + number1] = Worldtile(ourUniverse,
-                            (chunkMove[0] + number, chunkMove[1] + number1),True)
+                if chunkMove[0]+number > 0 and chunkMove[1]+number1 > 0:
+                    if (chunkMove[0] + number, chunkMove[1] + number1) in ourUniverse.gameBoards:
+                        pass
+                    else:
+                        ourUniverse.gameBoards[chunkMove[0] + number, chunkMove[1] + number1] = Worldtile(ourUniverse,
+                                (chunkMove[0] + number, chunkMove[1] + number1),True)
     def unloadWorldTile(universe,renderDistance=0,centerOfDeletion=(0,0)):
         ourUniverse = globals.multiverse[universe]
         toBeDeleted = []
+        entitiesToBeDeleted = []
         for object in ourUniverse.gameBoards.values():
-                dist = tuple(map(lambda i, j: i - j, (int(centerOfDeletion[0]/16),int(centerOfDeletion[1]/16)),object.pos))
-                if abs(dist[0]) > renderDistance or abs(dist[1]) > renderDistance:
+                centerPos = int(centerOfDeletion[0]/16),int(centerOfDeletion[1]/16)
+                dist = int(math.sqrt(((centerPos[0] - object.pos[0])**2) + (centerPos[1] - object.pos[1])**2))
+                if abs(dist) > renderDistance:
+                    print(object.pos)
                     toBeDeleted.append(object)
         for object in toBeDeleted:
             ourUniverse.gameBoards.pop(object.pos)
@@ -264,13 +247,16 @@ class WorldManager:
         entitiesHitList = []
         ourUniverse = globals.multiverse[universe]
         for entity in ourUniverse.entities:
-            dist = tuple(map(lambda i, j: i - j, centerOfDeletion,entity.pos))
-            if abs(dist[0]) > globals.chunkSize*4 or abs(dist[1]) > globals.chunkSize*4:
-                ourUniverse.worldEntities.append(entity)
+            #print((entity.pos[0] - centerOfDeletion[0])^2 + (entity.pos[1] - centerOfDeletion[1] )^2)
+            dist = int(math.sqrt(((entity.pos[0] - centerOfDeletion[0])**2) + (entity.pos[1] - centerOfDeletion[1])**2))
+            print(dist)
+            if abs(dist) > 50:
+                if "noSave" not in entity.flags:
+                    ourUniverse.worldEntities.append(entity)
                 entitiesHitList.append(entity)
+        print("entites to be deleted"+str(len(entitiesHitList)))
         for entity in entitiesHitList:
             ourUniverse.entities.remove(entity)
-        entitiesHitList = None
     def unloadEntities(universe):
         ourUniverse = globals.multiverse[universe]
         hitlist = []

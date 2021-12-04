@@ -20,7 +20,9 @@ flagDefinitions = {
     "item":{"pos":(0,0),"sprite":1,"displayname":"","weight":1,"meleedamage":1},
     "furniture":{"pos":(0,0),"sprite":1},
     "door":{"state":False,"spriteTrue":1,"spriteFalse":1},
-    "sign":{"text":""}
+    "sign":{"text":""},
+    "colourBiomeDependent":{"rendering":{"spriteColour":"biomeDependent"}},
+    "tile":{"pos":(0,0),"sprite":1,"displayname":""}
 }
 interactions = frozenset(["door","sign"])
 saveableData = frozenset([

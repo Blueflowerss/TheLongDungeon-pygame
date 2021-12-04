@@ -49,10 +49,15 @@ def _update_objects(universe):
         actor._process()
 
 def _update_board(universe):
-    universe.board = {}
     for board in universe.gameBoards.values():
         for tile in board.tiles:
-            universe.board[tile] = board.tiles[tile]
+            def addAllObjects():
+                if tile.pos in universe.objectMap:
+                    universe.objectMap[tile.pos].append(tile)
+                else:
+                    universe.objectMap[tile.pos] = []
+                    addAllObjects()
+            addAllObjects()
 
 def _update():
     for universe in globals.multiverse:

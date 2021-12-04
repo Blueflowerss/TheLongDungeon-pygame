@@ -17,27 +17,16 @@ def _render_screen(screen,universe):
             0] / 2, universe.actors[currentActor].pos[1] * -boardDistancing + resolution[1] / 2
     else:
         cameraOffsetX, cameraOffsetY = 0, 0
-    for pos in universe.board:
-        object = universe.board[pos]
-        if (pos[0], pos[1] - 1) in universe.board and (pos[0], pos[1] + 1) in universe.board and (
-                pos[0] + 1, pos[1]) in universe.board and (pos[0] - 1, pos[1]) in universe.board:
-            if "blocks" in universe.board[pos[0], pos[1] - 1].flags \
-                    and "blocks" in universe.board[pos[0], pos[1] + 1].flags \
-                    and "blocks" in universe.board[pos[0] + 1, pos[1]].flags \
-                    and "blocks" in universe.board[pos[0] - 1, pos[1]].flags:
-                pass
+    for objectList in universe.objectMap.values():
+        for object in objectList:
+            if "spriteOffset" in object.flags:
+                renderLayers[1].append((images[object.sprite], (
+                    (object.pos[0] * boardDistancing + cameraOffsetX),
+                    (object.pos[1] * boardDistancing + cameraOffsetY))))
             else:
-                renderLayers[3].append((images[object.spriteId], (
-                    pos[0] * boardDistancing + cameraOffsetX, pos[1] * boardDistancing + cameraOffsetY)))
-    for object in universe.entities:
-        if "spriteOffset" in object.flags:
-            renderLayers[1].append((images[object.sprite], (
-                (object.pos[0] * boardDistancing + cameraOffsetX),
-                (object.pos[1] * boardDistancing + cameraOffsetY))))
-        else:
-            renderLayers[2].append((images[object.sprite], (
-                object.pos[0] * boardDistancing + cameraOffsetX,
-                object.pos[1] * boardDistancing + cameraOffsetY)))
+                renderLayers[2].append((images[object.sprite], (
+                    object.pos[0] * boardDistancing + cameraOffsetX,
+                    object.pos[1] * boardDistancing + cameraOffsetY)))
     for object in universe.actors.values():
         renderLayers[2].append((images[3], (
             object.pos[0] * boardDistancing + cameraOffsetX, object.pos[1] * boardDistancing + cameraOffsetY)))

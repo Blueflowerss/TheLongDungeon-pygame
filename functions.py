@@ -46,7 +46,7 @@ def Step(actor,index,movement,follow):
 
         #deletion
         for object in globals.multiverse:
-            if abs(object - globals.currentUniverse) > 2:
+            if abs(object - globals.currentUniverse) > 1:
                 universesToBeDeleted.append(object)
         for board in boardsToBeDeleted:
             globals.multiverse[index].gameBoards.pop(board.pos)
@@ -65,13 +65,13 @@ def testTravel(actor,index,movement):
     if (int(actor.pos[0]/globals.chunkSize),int(actor.pos[1]/globals.chunkSize)) not in globals.multiverse[movement].gameBoards:
         classes.WorldManager.loadWorldTile(int(actor.pos[0] / globals.chunkSize), int(actor.pos[1] / globals.chunkSize),
                                            2, movement)
-    tiles = universe.gameBoards[int(actor.pos[0]/globals.chunkSize),int(actor.pos[1]/globals.chunkSize)].tiles
-    if (actor.pos[0],actor.pos[1]) in tiles:
-        if "blocks" in tiles[actor.pos[0],actor.pos[1]].flags:
-            globals.insertToActionLog("Path Blocked.")
-            return False
-        else:
-            return True
+    if (actor.pos[0],actor.pos[1]) in universe.objectMap:
+        for object in universe.objectMap[actor.pos[0],actor.pos[1]]:
+            if "blocks" in object.flags:
+                globals.insertToActionLog("Path Blocked.")
+                return False
+            else:
+                return True
     else:
         return False
 def interactWithEntity(entity):

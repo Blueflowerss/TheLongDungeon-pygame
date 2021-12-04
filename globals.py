@@ -153,11 +153,10 @@ def quickload(universeNumber):
                     for object in save["tiles"][str(universeNumber)]:
                         pos = object.split()
                         tile = save["tiles"][str(universeNumber)][object]
-                        if universeNumber in multiverse:
-                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = classes.Tile(tile,multiverse[universeNumber])
-                        else:
-                            createUniverse(universeNumber)
-                            multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]
+                        #if universeNumber in multiverse:
+                        #    multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = classes.Tile(tile,multiverse[universeNumber])
+                        createUniverse(universeNumber)
+                            #multiverse[universeNumber].alteredTerrain[int(pos[0]), int(pos[1])] = [int(pos[0]), int(pos[1]),tile]
                     if os.path.exists("worlddata/world" + str(universeNumber) + "/entities.json"):
                         with open("worlddata/world" + str(universeNumber) + "/entities.json", "rb") as entites:
                             if os.fstat(entites.fileno()).st_size > 0:
